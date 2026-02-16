@@ -26,7 +26,7 @@
     "html-loader": "^5.1.0",
     "html-minimizer-webpack-plugin": "^5.0.0",
     "html-webpack-plugin": "^5.6.3",
-    "openai": "^4.86.1",
+    "openai": "^6.22.0",
     "prettier": "^3.5.2",
     "prettier-eslint": "^16.3.0",
     "robotstxt-webpack-plugin": "^8.0.0",
