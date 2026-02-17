@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://deskling.local/schemas/envelope.json",
+  "title": "IPC Message Envelope",
+  "description": "Base envelope for all IPC messages",
+  "type": "object",
+  "required": ["v", "id", "ts", "from", "to", "topic", "trace_id", "payload"],
+  "properties": {
+    "v": {
+      "type": "integer",
+      "description": "Protocol version",
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "description": "Unique message ID (ULID or UUIDv7)",
+      "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$|^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "ts": {
+      "type": "string",
+      "description": "ISO 8601 timestamp",
+      "format": "date-time"
+    },
+    "from": {
+      "type": "string",
+      "description": "Sending service identifier",
+      "enum": ["desktop-ui", "ipc-hub", "agent-core", "automation-service", "voice-service", "skin-service"]
+    },
+    "to": {
+      "type": "string",
+      "description": "Target service identifier",
+      "enum": ["desktop-ui", "ipc-hub", "agent-core", "automation-service", "voice-service", "skin-service", "broadcast"]
+    },
+    "topic": {
+      "type": "string",
+      "description": "Message topic (e.g., chat.user_message, tool.execute)",
+      "pattern": "^[a-z_]+\\.[a-z_]+$"
+    },
+    "reply_to": {
+      "type": ["string", "null"],
+      "description": "ID of message being replied to"
+    },
+    "trace_id": {
+      "type": "string",
+      "description": "Trace ID for request correlation",
+      "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$|^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "payload": {
+      "type": "object",
+      "description": "Topic-specific message payload"
+    }
+  }
+}

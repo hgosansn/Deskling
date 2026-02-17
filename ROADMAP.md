@@ -37,18 +37,18 @@ These are committed choices for v1 unless explicitly changed in roadmap updates.
 
 ## Phase Plan
 
-### Phase P0 - Setup and Governance (1-2 days)
+### Phase P0 - Setup and Governance (1-2 days) ✅ COMPLETE (2026-02-17)
 Goal: create the delivery baseline before writing feature code.
 
 Tasks:
-- [ ] `P0-T1` Define monorepo skeleton and service directories per `specs/architecture.md`.
-- [ ] `P0-T2` Add local config templates (`configs/default.toml`, `configs/permissions.toml`).
-- [ ] `P0-T3` Add scripts for local orchestration (`scripts/dev-up.sh`, `scripts/build-all.sh`).
-- [ ] `P0-T4` Implement logging/trace-id conventions used across all services.
+- [x] `P0-T1` Define monorepo skeleton and service directories per `specs/architecture.md`. (2026-02-17)
+- [x] `P0-T2` Add local config templates (`configs/default.toml`, `configs/permissions.toml`). (2026-02-17)
+- [x] `P0-T3` Add scripts for local orchestration (`scripts/dev-up.sh`, `scripts/build-all.sh`). (2026-02-17)
+- [x] `P0-T4` Implement logging/trace-id conventions used across all services. (2026-02-17)
 
 Exit criteria:
-- Single command can start hub + one stub service + UI shell.
-- All new modules follow the shared naming and config conventions.
+- ✅ Single command can start hub + one stub service + UI shell.
+- ✅ All new modules follow the shared naming and config conventions.
 
 ### Phase P1 - IPC Backbone (2-4 days)
 Goal: establish reliable local communication and routing.
