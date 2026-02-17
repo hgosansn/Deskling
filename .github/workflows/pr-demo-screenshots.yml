@@ -1,0 +1,120 @@
+name: PR Demo Screenshots
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'apps/desktop-ui/**'
+      - 'apps/ipc-hub/**'
+      - 'services/agent-core/**'
+      - 'services/automation-service/**'
+      - 'shared/**'
+      - 'scripts/capture_demo.py'
+      - 'scripts/capture_screenshots.sh'
+
+jobs:
+  capture-screenshots:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+      
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install playwright pillow
+          playwright install chromium
+          pip install -r shared/requirements.txt
+          pip install -r apps/ipc-hub/requirements.txt
+          pip install -r services/agent-core/requirements.txt
+      
+      - name: Capture screenshots
+        run: |
+          chmod +x scripts/capture_screenshots.sh
+          ./scripts/capture_screenshots.sh
+      
+      - name: Upload screenshots as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-screenshots
+          path: demo-screenshots/*.png
+          retention-days: 30
+      
+      - name: Comment on PR with screenshots
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            const screenshotDir = 'demo-screenshots';
+            const files = fs.readdirSync(screenshotDir).filter(f => f.endsWith('.png')).sort();
+            
+            if (files.length === 0) {
+              console.log('No screenshots found');
+              return;
+            }
+            
+            let comment = '## 📸 Demo Screenshots\n\n';
+            comment += 'Visual preview of the Desktop UI in action:\n\n';
+            
+            const screenshotDescriptions = {
+              '01-idle-state.png': '**Idle State** - Application ready for input',
+              '02-user-typing.png': '**User Input** - Typing a message',
+              '03-user-message-sent.png': '**Message Sent** - User message displayed',
+              '04-assistant-response.png': '**Assistant Response** - AI assistant reply',
+              '05-plan-with-confirmation.png': '**Low-Risk Action** - Notification with approval',
+              '06-medium-risk-action.png': '**Medium-Risk Action** - File operation requiring confirmation'
+            };
+            
+            comment += '_Screenshots are available in the workflow artifacts for download._\n\n';
+            
+            for (const file of files) {
+              const description = screenshotDescriptions[file] || file;
+              comment += `### ${description}\n`;
+              comment += `![${file}](../../actions/runs/${context.runId}/artifacts)\n\n`;
+            }
+            
+            comment += '---\n';
+            comment += '_Generated automatically by PR Demo Screenshots workflow_';
+            
+            // Check if we already commented
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const botComment = comments.find(c => 
+              c.user.type === 'Bot' && c.body.includes('📸 Demo Screenshots')
+            );
+            
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }
