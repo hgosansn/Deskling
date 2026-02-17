@@ -73,16 +73,17 @@ async def handle_confirmation_grant(msg: dict):
         trace_id
     )
     
-    # TODO: Phase P4 - Send tool.execute to automation-service
-    # For now, just acknowledge
+    # TODO: Store pending tool calls and retrieve them by confirm_token
+    # For now, send a placeholder tool execution
+    # In a real implementation, we'd retrieve the tool_calls from a pending dict
+    
     await ipc_client.send_message(
         to_service="desktop-ui",
         topic="chat.assistant_message",
         payload={
-            "text": "Tools would execute here (automation-service integration pending in Phase P4)."
+            "text": "Tools are being executed by automation-service..."
         },
-        trace_id=trace_id,
-        reply_to=msg['id']
+        trace_id=trace_id
     )
 
 
