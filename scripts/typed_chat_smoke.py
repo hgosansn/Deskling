@@ -43,10 +43,11 @@ async def run() -> None:
     env['PYTHONPATH'] = f"{root}/shared/python:{root}/apps/ipc-hub"
 
     hub = await asyncio.create_subprocess_exec('python3', f'{root}/apps/ipc-hub/main.py', env=env)
+    await asyncio.sleep(0.4)
     agent = await asyncio.create_subprocess_exec('python3', f'{root}/services/agent-core/main.py', env=env)
 
     try:
-        await asyncio.sleep(0.8)
+        await asyncio.sleep(1.2)
 
         async with websockets.connect('ws://127.0.0.1:17171/ws', ping_interval=None) as socket:
             auth_trace = uuid4().hex

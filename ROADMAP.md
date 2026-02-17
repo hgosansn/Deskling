@@ -1,6 +1,6 @@
 # Project Roadmap - Cross-Platform Voice Desktop Mate
 
-Last updated: 2026-02-16
+Last updated: 2026-02-17
 
 ## Purpose
 This roadmap is the execution plan for building the product. It is intentionally concise and phase-driven.
@@ -20,11 +20,11 @@ These are committed choices for v1 unless explicitly changed in roadmap updates.
 
 - `D1` Runtime split: multi-process local system (`desktop-ui`, `ipc-hub`, `agent-core`, `voice-service`, `automation-service`, optional `skin-service`).
 - `D2` UI stack: Tauri for v1 delivery speed and native footprint.
-- `D3` Core service language: Python (fast AI iteration, mature local inference ecosystem).
+- `D3` Core service language: Rust for all production services (`ipc-hub`, `agent-core`, `automation-service`, `voice-service`, `skin-service`).
 - `D4` IPC transport: local WebSocket hub on loopback only (`127.0.0.1`), JSON envelopes, heartbeat, token auth.
-- `D5` LLM runtime: Ollama-first abstraction with provider interface for future remote models.
-- `D6` STT: Whisper.cpp / faster-whisper adapter (local-first, offline-capable).
-- `D7` TTS: Piper local voices.
+- `D5` LLM runtime: remote-provider-first abstraction (HTTP APIs); no local model runtime in v1.
+- `D6` STT: remote-provider-first; local STT runtimes are not in v1 scope.
+- `D7` TTS: remote-provider-first; local TTS runtimes are not in v1 scope.
 - `D8` Browser automation: Playwright as default web execution path.
 - `D9` Desktop automation safety: confirmation-token gate for medium/high risk actions.
 - `D10` Character system: skin-pack format for v1; live generation is v1.5+.
@@ -32,11 +32,15 @@ These are committed choices for v1 unless explicitly changed in roadmap updates.
 - `D12` Data/privacy baseline: local-first storage, audit logs for tool actions, no secret leakage in assistant responses.
 - `D13` Platform priority: Fedora Linux (GNOME) is the primary development and MVP qualification environment; macOS/Windows parity is post-MVP.
 
+## Decision Change Log
+- `2026-02-17` Architecture pivot approved: Rust-only service rewrite and no local inference baseline. Packaging size, runtime simplicity, and cross-platform release stability are now prioritized over Python-based AI iteration speed.
+
 ## Out of Scope for V1
 - Always-on wake-word by default
 - Fully autonomous destructive actions without confirmation
 - Real-time generated 3D avatar creation
 - Cloud dependency as required path
+- Local model/runtime inference stacks (for example Ollama, Whisper.cpp, Piper) in v1
 
 ## Phase Plan
 
@@ -175,6 +179,26 @@ Exit criteria:
 - Legal/compliance review checklist exists for the initial launch jurisdictions.
 - Implementation backlog is split into post-MVP epics with owners and sequencing.
 
+### Phase P10 - Rust Rewrite and Runtime Simplification (2-4 weeks)
+Goal: remove Python runtime dependencies from the product path and run all core services in Rust while keeping Tauri UI and tokenomics constraints unchanged.
+
+Tasks:
+- [x] `P10-T0` Approve Rust-only/no-local-inference architecture pivot and synchronize roadmap/spec baselines. (Done 2026-02-17)
+- [ ] `P10-T1` Rewrite `ipc-hub` in Rust with feature parity (auth, heartbeat, routing, schema validation, structured errors).
+- [ ] `P10-T2` Rewrite `agent-core` in Rust with the same IPC contracts and risk-labeled planning outputs.
+- [ ] `P10-T3` Rewrite `automation-service` in Rust with existing confirmation-token and audit requirements.
+- [ ] `P10-T4` Rewrite `voice-service` in Rust using remote-provider adapters only (no local inference runtimes bundled).
+- [ ] `P10-T5` Rewrite `skin-service` in Rust (or merge into another Rust service if lower operational overhead).
+- [ ] `P10-T6` Replace Python dev/test scripts with Rust binaries and cargo-based checks.
+- [ ] `P10-T7` Remove Python/runtime dependencies from packaging and CI; verify reduced bundle footprint and simpler install path.
+- [ ] `P10-T8` Re-run Fedora qualification and cross-platform smoke tests after Rust rewrite.
+
+Exit criteria:
+- No production runtime dependency on Python remains.
+- Build/test/deploy path is cargo + Node/Tauri only.
+- Bundle size and install complexity are reduced versus the previous baseline.
+- IPC/tool/confirmation behavior remains backward-compatible with current schemas and policies.
+
 ## Milestone Gates
 - `M1` (after P2): typed chat UI working over IPC. (Reached 2026-02-16)
 - `M2` (after P4): approved tool actions execute with audit logs. (Reached 2026-02-16)
@@ -183,12 +207,14 @@ Exit criteria:
 - `M5` (after P7): Fedora GNOME MVP qualified release candidate.
 - `M6` (after P8): macOS/Windows compatibility baseline established.
 - `M7` (after P9): tokenomics and marketplace economics launch plan approved.
+- `M8` (after P10): Rust-only runtime baseline validated for Fedora and cross-platform follow-up.
 
 ## Immediate Next Actions
 - [x] `N1` Create scaffolding for `ipc-hub`, `desktop-ui`, `agent-core`. (Done 2026-02-16)
 - [x] `N2` Implement minimal envelope validation and routing smoke test. (Done 2026-02-16)
 - [x] `N3` Build typed-chat vertical slice (`desktop-ui` -> `agent-core` -> `desktop-ui`). (Done 2026-02-16)
 - [x] `N4` Reconcile divergent `main` histories while preserving locked decisions from `D2` (Tauri) and tokenomics references in `specs/tokenomics.md`. (Done 2026-02-17)
+- [x] `N5` Rebaseline roadmap/specs to Rust-only services and no local inference strategy. (Done 2026-02-17)
 
 ## Roadmap Update Rules
 - Every completed task must be checked and dated in this file.

@@ -48,8 +48,16 @@ class IpcHubServer:
             with contextlib.suppress(asyncio.CancelledError):
                 await monitor_task
 
-    async def _handle_connection(self, websocket: WebSocketServerProtocol, path: str) -> None:
-        if path != PATH:
+    async def _handle_connection(self, websocket: WebSocketServerProtocol, path: str | None = None) -> None:
+        # websockets<13 passes (websocket, path); newer versions pass only websocket.
+        resolved_path = path
+        if resolved_path is None:
+            resolved_path = getattr(websocket, 'path', None)
+        if resolved_path is None:
+            request = getattr(websocket, 'request', None)
+            resolved_path = getattr(request, 'path', None)
+
+        if resolved_path != PATH:
             await websocket.close(code=1008, reason='invalid_path')
             return
 

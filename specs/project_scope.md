@@ -1,9 +1,9 @@
 # Product Scope
 
-Related roadmap tasks: `P0-T1`, `P2-T1`, `P3-T1`, `P5-T1`, `P6-T1`, `P7-T5`, `P7-T7`, `P8-T1`, `P9-T1`
+Related roadmap tasks: `P0-T1`, `P2-T1`, `P3-T1`, `P5-T1`, `P6-T1`, `P7-T5`, `P7-T7`, `P8-T1`, `P9-T1`, `P10-T1`, `P10-T8`
 
 ## Problem Statement
-Users need a lightweight desktop assistant that can hear, respond, and execute practical desktop/web tasks with explicit safety boundaries and local-first privacy.
+Users need a lightweight desktop assistant that can hear, respond, and execute practical desktop/web tasks with explicit safety boundaries and an install/runtime footprint that stays minimal across platforms.
 
 ## Product Definition
 A floating desktop character assistant that:
@@ -18,18 +18,20 @@ A floating desktop character assistant that:
 - Safe and auditable tool execution
 - Fedora GNOME as the first required shipping target
 - macOS/Windows compatibility as final post-MVP parity stage
-- Local-first operation with optional future remote providers
+- Rust-only production services for simpler dependency management and release operations
+- Remote-provider-first inference path (no local model runtime dependency in v1)
 
 ## Non-Goals (V1)
 - Fully autonomous destructive actions
 - Always-on wake word enabled by default
 - Fully dynamic real-time avatar generation
-- Mandatory cloud model dependency
+- Local model runtime dependencies in the release bundle
 - Token launch as a hard dependency for core assistant functionality
 
 ## Post-V1 Expansion Themes
 - Utility-token economics for AI usage and creator marketplace (`specs/tokenomics.md`)
 - Optional staking/perk mechanics with compliance-gated rollout
+- Optional local/offline inference exploration only after Rust-only baseline is stable
 
 ## Distribution Experience
 - Provide a promotional product page with:
