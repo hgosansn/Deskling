@@ -1,7 +1,14 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-This repo is a Tauri-first desktop assistant monorepo.
+This repo contains two implementations:
+
+### Rust Standalone MVP
+- `deskling-character/`: Rust/egui standalone character application
+- Build: `cd deskling-character && cargo build --release`
+- Run: `cargo run --release`
+
+### Full Product (Tauri + Python)
 - `apps/desktop-ui/`: Tauri desktop UI (Vite frontend + Rust host).
 - `apps/ipc-hub/`: Python IPC hub service.
 - `services/`: Python services (`agent-core`, `automation-service`, `voice-service`, `skin-service`).
@@ -10,6 +17,13 @@ This repo is a Tauri-first desktop assistant monorepo.
 - `scripts/`: helper shell scripts.
 
 ## Build, Test, and Development Commands
+
+### Rust Standalone MVP
+- `cd deskling-character && cargo build --release`: build optimized binary
+- `cargo run --release`: run character demo
+- `./verify.sh`: verify implementation
+
+### Full Product (Tauri + Python)
 - `npm run dev`: run `apps/desktop-ui` frontend dev server.
 - `npm run tauri:dev`: run desktop app in Tauri dev mode.
 - `npm run build`: build frontend assets for desktop packaging.
