@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import os
 import websockets
 from typing import Callable, Optional, Dict
 from datetime import datetime, timezone
@@ -18,7 +19,7 @@ class IPCClient:
         self,
         service_name: str,
         capabilities: list,
-        hub_url: str = "ws://127.0.0.1:17171",
+        hub_url: str = "ws://127.0.0.1:17171/ws",
         version: str = "0.1.0"
     ):
         self.service_name = service_name
@@ -65,9 +66,11 @@ class IPCClient:
                 to_service="ipc-hub",
                 topic="auth.hello",
                 payload={
+                    "service": self.service_name,
                     "service_name": self.service_name,
                     "capabilities": self.capabilities,
-                    "version": self.version
+                    "version": self.version,
+                    "token": os.getenv("TASKSPRITE_IPC_TOKEN", "dev-token")
                 },
                 trace_id=trace_id
             )
@@ -79,7 +82,7 @@ class IPCClient:
             response = json.loads(response_raw)
             
             if response["topic"] == "auth.ok":
-                self.session_token = response["payload"]["session_token"]
+                self.session_token = (response.get("payload") or {}).get("session_token")
                 self.authenticated = True
                 log_with_trace(
                     self.logger, "info",

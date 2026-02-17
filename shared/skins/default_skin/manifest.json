@@ -1,0 +1,10 @@
+{
+    "id": "default_skin",
+    "name": "Default Skin",
+    "version": "1.0.0",
+    "assets": {
+        "idle": "assets/idle.txt",
+        "talk": "assets/talk.txt",
+        "emotion": "assets/emotion.txt"
+    }
+}

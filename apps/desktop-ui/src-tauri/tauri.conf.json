@@ -1,0 +1,33 @@
+{
+    "$schema": "https://schema.tauri.app/config/2",
+    "productName": "TaskSprite",
+    "version": "0.1.0",
+    "identifier": "com.hgosansn.tasksprite",
+    "build": {
+        "beforeDevCommand": "npm run dev",
+        "beforeBuildCommand": "npm run build",
+        "devUrl": "http://127.0.0.1:1420",
+        "frontendDist": "../dist"
+    },
+    "app": {
+        "windows": [
+            {
+                "title": "TaskSprite",
+                "width": 1080,
+                "height": 720,
+                "resizable": true,
+                "alwaysOnTop": true,
+                "transparent": true,
+                "decorations": false
+            }
+        ],
+        "security": {
+            "csp": null
+        }
+    },
+    "bundle": {
+        "active": true,
+        "targets": "all",
+        "icon": []
+    }
+}

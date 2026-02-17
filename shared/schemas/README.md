@@ -1,11 +1,3 @@
-# Shared Schemas
+# shared-schemas
 
-JSON Schema definitions for IPC message validation.
-
-## Contents
-- Message envelope schema
-- Topic-specific payload schemas
-- Validation utilities
-
-## Related Specs
-- `specs/ipc_protocol.md`
+Shared JSON schemas used by all services over IPC.

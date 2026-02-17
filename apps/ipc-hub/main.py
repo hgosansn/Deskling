@@ -1,24 +1,15 @@
-"""IPC Hub main entry point."""
+#!/usr/bin/env python3
+"""Entry point for IPC hub service."""
+
+from __future__ import annotations
 
 import asyncio
-import sys
-from pathlib import Path
 
-# Add shared to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
-
-from server import IPCHub
+from server import main
 
 
-async def main():
-    """Main entry point for IPC Hub."""
-    hub = IPCHub(host="127.0.0.1", port=17171)
-    
+if __name__ == '__main__':
     try:
-        await hub.start()
+        asyncio.run(main())
     except KeyboardInterrupt:
-        hub.logger.info("IPC Hub shutting down")
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+        pass

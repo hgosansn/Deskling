@@ -16,7 +16,7 @@ async def test_client():
     client = IPCClient(
         service_name="test-service",
         capabilities=["test.echo"],
-        hub_url="ws://127.0.0.1:17171"
+        hub_url="ws://127.0.0.1:17171/ws"
     )
     
     try:

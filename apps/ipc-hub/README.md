@@ -1,19 +1,19 @@
-# IPC Hub
+# ipc-hub
 
-WebSocket-based message router for inter-process communication.
+Python IPC hub scaffold.
 
-## Responsibilities
-- Loopback-only WebSocket endpoint (`127.0.0.1:17171`)
-- Service registration and capability metadata
-- Schema validation and message routing
-- Heartbeat monitoring
+## Current baseline
+- Loopback-only WebSocket hub (`server.py`) at `ws://127.0.0.1:17171/ws`
+- Minimal envelope validation (`ipc_hub/validation.py`)
+- In-memory router for destination queues (`ipc_hub/router.py`)
+- Smoke test (`tests/smoke_test.py`)
 
-## Related Specs
-- `specs/architecture.md`
-- `specs/ipc_protocol.md`
+## Dependency
+```bash
+pip install -r apps/ipc-hub/requirements.txt
+```
 
-## Related Roadmap
-- P1-T1: Build ipc-hub WebSocket server
-- P1-T2: Implement auth handshake and service registration
-- P1-T3: Implement heartbeat, routing, and request/response correlation
-- P1-T4: Add message schema validation and structured errors
+## Run smoke test
+```bash
+PYTHONPATH=apps/ipc-hub python3 apps/ipc-hub/tests/smoke_test.py
+```

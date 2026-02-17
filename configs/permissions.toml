@@ -1,38 +1,9 @@
-# Permission and Risk Policy Configuration
+[tools]
+default_policy = "confirm_medium_high"
 
-# Tool confirmation requirements
 [tools.clipboard]
-read = { risk = "low", confirmation = "never" }
-write = { risk = "low", confirmation = "never" }
+risk = "low"
 
-[tools.notify]
-send = { risk = "low", confirmation = "never" }
-
-[tools.apps]
-open = { risk = "low", confirmation = "if_destructive" }
-
-[tools.files]
-list_dir = { risk = "low", confirmation = "never" }
-search = { risk = "low", confirmation = "never" }
-read_text = { risk = "low", confirmation = "never" }
-write_text = { risk = "medium", confirmation = "if_destructive" }
-ensure_dir = { risk = "low", confirmation = "never" }
-move_glob = { risk = "medium", confirmation = "if_destructive" }
-delete = { risk = "high", confirmation = "always" }
-
-[tools.browser]
-open_url = { risk = "low", confirmation = "never" }
-navigate = { risk = "low", confirmation = "never" }
-click = { risk = "medium", confirmation = "if_destructive" }
-fill_form = { risk = "medium", confirmation = "if_destructive" }
-
-[tools.shell]
-# Shell execution disabled by default for safety
-run = { risk = "high", confirmation = "always", enabled = false }
-
-# Confirmation token settings
-[confirmation]
-default_ttl_seconds = 300  # 5 minutes
-high_risk_ttl_seconds = 60  # 1 minute
-single_use = true
-require_explicit_scope = true
+[tools.file]
+risk = "medium"
+allowed_paths = ["/home"]

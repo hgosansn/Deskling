@@ -1,40 +1,11 @@
-# Default Configuration for Deskling Voice Desktop Mate
+[app]
+name = "TaskSprite"
+mode = "local"
 
 [ipc]
 host = "127.0.0.1"
-port = 17171
-auth_token_ttl_seconds = 3600
-heartbeat_interval_seconds = 30
+port = 5454
+heartbeat_ms = 5000
 
-[agent]
-model_provider = "ollama"
-default_model = "llama3.2:latest"
-max_tokens = 2048
-temperature = 0.7
-
-[voice]
-stt_engine = "faster-whisper"
-stt_model = "base"
-tts_engine = "piper"
-tts_voice = "en_US-lessac-medium"
-push_to_talk_key = "ctrl+space"
-
-[automation]
-# Allowed base paths for file operations (use absolute paths)
-allowed_paths = [
-    "~/Documents",
-    "~/Downloads",
-]
-# Maximum file size in MB
-max_file_size_mb = 100
-
-[ui]
-character_skin = "default"
-theme = "dark"
-always_on_top = true
-overlay_opacity = 0.95
-
-[logging]
-level = "INFO"
-log_dir = "~/.deskling/logs"
-trace_id_format = "ulid"
+[paths]
+audit_log = "./logs/audit.log"

@@ -1,37 +1,46 @@
-"""Voice Service main entry point."""
+#!/usr/bin/env python3
+"""Voice-service baseline with push-to-talk capture event flow."""
 
-import asyncio
-import sys
-from pathlib import Path
+from __future__ import annotations
 
-# Add shared to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
+import logging
+import time
 
-from logging_utils import setup_logger, generate_trace_id
+from capture import PushToTalkSession, VoiceEvent
+from playback import PlaybackController
+from stt_adapter import SttAdapter
+from tts_adapter import TtsAdapter
+from tasksprite_common import get_service_logger, new_trace_id
 
 
-async def main():
-    """Main entry point for Voice Service."""
-    logger = setup_logger("voice-service", level="INFO")
-    trace_id = generate_trace_id()
-    
-    logger.info(
-        "Voice Service starting (stub implementation - Phase P5 pending)",
-        extra={'trace_id': trace_id}
-    )
-    
-    # TODO: Phase P5-T1 - Implement push-to-talk capture
-    # TODO: Phase P5-T2 - Integrate STT adapter
-    # TODO: Phase P5-T3 - Integrate Piper TTS
-    # TODO: Phase P5-T4 - Add barge-in
-    
-    # Keep service running
+def main() -> None:
+    logger = get_service_logger('voice-service')
+    logger.event(logging.INFO, 'service.start', new_trace_id(), mode='push-to-talk-v0')
+    stt = SttAdapter(provider='mock')
+    tts = TtsAdapter(provider='mock')
+
+    def emit(event: VoiceEvent) -> None:
+        logger.event(logging.INFO, event.topic, event.trace_id, **event.payload)
+
+    session = PushToTalkSession(emit, finalize_transcript=stt.transcribe_chunks)
+    playback = PlaybackController(emit)
+
     try:
         while True:
-            await asyncio.sleep(1)
+            trace = session.start_capture()
+            session.add_transcript_chunk('voice')
+            session.add_transcript_chunk('service')
+            final_event = session.stop_capture()
+            if final_event and final_event.payload.get('text'):
+                tts_result = tts.synthesize(final_event.payload['text'])
+                logger.event(logging.INFO, 'voice.tts.speak', trace, **tts_result)
+                playback.start(trace, tts_result['text'])
+                playback.interrupt(trace, reason='barge_in')
+            logger.event(logging.INFO, 'audio.idle', trace, capture='off', playback='off')
+            time.sleep(5)
     except KeyboardInterrupt:
-        logger.info("Voice Service shutting down", extra={'trace_id': trace_id})
+        logger.event(logging.INFO, 'service.stop', new_trace_id(), reason='interrupt')
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+if __name__ == '__main__':
+    main()

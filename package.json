@@ -1,20 +1,18 @@
 {
-  "name": "deskling",
-  "version": "0.1.0",
-  "description": "Cross-platform voice desktop mate with multi-process architecture",
-  "private": true,
-  "workspaces": [
-    "apps/desktop-ui"
-  ],
-  "scripts": {
-    "install:all": "cd apps/desktop-ui && npm install",
-    "dev": "./scripts/dev-up.sh",
-    "build": "./scripts/build-all.sh",
-    "test": "./scripts/build-all.sh"
-  },
-  "keywords": ["voice-assistant", "desktop", "electron", "ipc"],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/hgosansn/Deskling.git"
-  }
+    "name": "tasksprite-monorepo",
+    "version": "0.1.1",
+    "private": true,
+    "workspaces": [
+        "apps/desktop-ui"
+    ],
+    "scripts": {
+        "dev": "npm --prefix apps/desktop-ui run dev",
+        "build": "npm --prefix apps/desktop-ui run build",
+        "tauri:dev": "npm --prefix apps/desktop-ui run tauri:dev",
+        "tauri:build": "npm --prefix apps/desktop-ui run tauri:build",
+        "verify": "./verify.sh"
+    },
+    "devDependencies": {
+        "prettier": "^3.5.2"
+    }
 }

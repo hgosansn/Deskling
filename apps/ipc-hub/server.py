@@ -1,306 +1,228 @@
-"""WebSocket server implementation for IPC Hub."""
+#!/usr/bin/env python3
+"""WebSocket IPC hub baseline with loopback-only binding and basic routing."""
+
+from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
+import logging
+import os
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from typing import Any
+
 import websockets
 from websockets.server import WebSocketServerProtocol
-from typing import Dict, Set, Optional
-from datetime import datetime, timezone, timedelta
-import jsonschema
-from pathlib import Path
 
-from logging_utils import setup_logger, generate_trace_id, log_with_trace
+from ipc_hub.validation import ValidationError, validate_envelope
+from tasksprite_common import get_service_logger, new_trace_id
+
+HOST = '127.0.0.1'
+PORT = 17171
+PATH = '/ws'
+AUTH_TOKEN = os.getenv('TASKSPRITE_IPC_TOKEN', 'dev-token')
+HEARTBEAT_TIMEOUT_SECONDS = 20
 
 
-class IPCHub:
-    """WebSocket-based IPC message router."""
+@dataclass
+class ClientSession:
+    service_name: str
+    websocket: WebSocketServerProtocol
+    last_seen_monotonic: float
 
-    def __init__(self, host: str = "127.0.0.1", port: int = 17171):
-        self.host = host
-        self.port = port
-        self.logger = setup_logger("ipc-hub", level="INFO")
-        
-        # Connected services
-        self.services: Dict[str, WebSocketServerProtocol] = {}
-        self.service_capabilities: Dict[str, list] = {}
-        
-        # Load schemas
-        schemas_dir = Path(__file__).parent.parent.parent / "shared" / "schemas"
-        with open(schemas_dir / "envelope.json") as f:
-            self.envelope_schema = json.load(f)
-        with open(schemas_dir / "auth_topics.json") as f:
-            self.auth_schemas = json.load(f)
-        
-        self.logger.info(f"IPC Hub initialized on {host}:{port}")
 
-    async def start(self):
-        """Start the WebSocket server."""
-        trace_id = generate_trace_id()
-        log_with_trace(
-            self.logger, "info",
-            f"Starting IPC Hub on {self.host}:{self.port}",
-            trace_id
-        )
-        
-        async with websockets.serve(
-            self.handle_connection,
-            self.host,
-            self.port,
-            ping_interval=30,
-            ping_timeout=10
-        ):
-            log_with_trace(
-                self.logger, "info",
-                f"IPC Hub listening on ws://{self.host}:{self.port}/ws",
-                trace_id
-            )
-            await asyncio.Future()  # Run forever
+class IpcHubServer:
+    def __init__(self) -> None:
+        self._clients: dict[str, ClientSession] = {}
+        self._logger = get_service_logger('ipc-hub')
 
-    async def handle_connection(self, websocket: WebSocketServerProtocol):
-        """Handle a new WebSocket connection."""
-        trace_id = generate_trace_id()
-        client_addr = f"{websocket.remote_address[0]}:{websocket.remote_address[1]}"
-        
-        log_with_trace(
-            self.logger, "info",
-            f"New connection from {client_addr}",
-            trace_id
-        )
-        
-        service_name = None
-        
+    async def run(self) -> None:
+        self._logger.event(logging.INFO, 'hub.start', new_trace_id(), bind=HOST, port=PORT, path=PATH)
+        monitor_task = asyncio.create_task(self._monitor_heartbeats())
         try:
-            # Wait for auth.hello message
-            auth_result = await self.authenticate(websocket, trace_id)
-            if not auth_result:
-                return
-            
-            service_name = auth_result["service_name"]
-            
-            # Keep connection alive and route messages
-            await self.message_loop(websocket, service_name, trace_id)
-            
-        except websockets.exceptions.ConnectionClosed:
-            log_with_trace(
-                self.logger, "info",
-                f"Connection closed for {service_name or client_addr}",
-                trace_id
-            )
-        except Exception as e:
-            log_with_trace(
-                self.logger, "error",
-                f"Error handling connection: {e}",
-                trace_id
-            )
+            async with websockets.serve(self._handle_connection, HOST, PORT, ping_interval=None):
+                await asyncio.Future()
         finally:
-            # Cleanup
-            if service_name and service_name in self.services:
-                del self.services[service_name]
-                del self.service_capabilities[service_name]
-                log_with_trace(
-                    self.logger, "info",
-                    f"Service {service_name} disconnected and removed",
-                    trace_id
-                )
+            monitor_task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await monitor_task
 
-    async def authenticate(
-        self,
-        websocket: WebSocketServerProtocol,
-        trace_id: str
-    ) -> Optional[dict]:
-        """
-        Authenticate a new connection.
-        
-        Returns service info dict if successful, None otherwise.
-        """
+    async def _handle_connection(self, websocket: WebSocketServerProtocol, path: str | None = None) -> None:
+        # websockets<13 passes (websocket, path); newer versions pass only websocket.
+        resolved_path = path
+        if resolved_path is None:
+            resolved_path = getattr(websocket, 'path', None)
+        if resolved_path is None:
+            request = getattr(websocket, 'request', None)
+            resolved_path = getattr(request, 'path', None)
+
+        if resolved_path != PATH:
+            await websocket.close(code=1008, reason='invalid_path')
+            return
+
+        session: ClientSession | None = None
+
         try:
-            # Wait for first message (timeout 10 seconds)
-            raw_msg = await asyncio.wait_for(websocket.recv(), timeout=10.0)
-            msg = json.loads(raw_msg)
-            
-            # Validate envelope
-            jsonschema.validate(instance=msg, schema=self.envelope_schema)
-            
-            # Check topic is auth.hello
-            if msg["topic"] != "auth.hello":
-                await self.send_auth_error(
-                    websocket,
-                    "INVALID_SERVICE",
-                    "First message must be auth.hello",
-                    trace_id
-                )
-                return None
-            
-            # Validate auth.hello payload
-            payload = msg["payload"]
-            jsonschema.validate(
-                instance=payload,
-                schema=self.auth_schemas["definitions"]["auth_hello"]
-            )
-            
-            service_name = payload["service_name"]
-            
-            # Check if service already registered
-            if service_name in self.services:
-                await self.send_auth_error(
-                    websocket,
-                    "DUPLICATE_SERVICE",
-                    f"Service {service_name} already connected",
-                    trace_id
-                )
-                return None
-            
-            # Register service
-            self.services[service_name] = websocket
-            self.service_capabilities[service_name] = payload.get("capabilities", [])
-            
-            # Send auth.ok
-            response = self.create_message(
-                from_service="ipc-hub",
-                to_service=service_name,
-                topic="auth.ok",
-                payload={
-                    "session_token": generate_trace_id(),  # Simple token for now
-                    "expires_at": (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat()
-                },
-                trace_id=trace_id,
-                reply_to=msg["id"]
-            )
-            await websocket.send(json.dumps(response))
-            
-            log_with_trace(
-                self.logger, "info",
-                f"Service {service_name} authenticated with capabilities: {payload.get('capabilities', [])}",
-                trace_id
-            )
-            
-            return payload
-            
-        except asyncio.TimeoutError:
-            log_with_trace(
-                self.logger, "warning",
-                "Authentication timeout",
-                trace_id
-            )
-            return None
-        except (json.JSONDecodeError, jsonschema.ValidationError) as e:
-            log_with_trace(
-                self.logger, "error",
-                f"Invalid auth message: {e}",
-                trace_id
-            )
-            await self.send_auth_error(
-                websocket,
-                "AUTH_FAILED",
-                str(e),
-                trace_id
-            )
-            return None
+            raw_first = await websocket.recv()
+            first_message = json.loads(raw_first)
+            validated = validate_envelope(first_message)
 
-    async def send_auth_error(
-        self,
-        websocket: WebSocketServerProtocol,
-        code: str,
-        message: str,
-        trace_id: str
-    ):
-        """Send an auth error response."""
-        response = self.create_message(
-            from_service="ipc-hub",
-            to_service="unknown",
-            topic="auth.error",
-            payload={"code": code, "message": message},
-            trace_id=trace_id
+            if validated['topic'] != 'auth.hello':
+                raise ValidationError('ERR_AUTH_REQUIRED', 'first message must be auth.hello')
+            session = self._create_session_from_auth(validated, websocket)
+            self._clients[session.service_name] = session
+
+            await self._send_auth_ok(websocket, validated)
+            self._logger.event(logging.INFO, 'auth.ok', validated['trace_id'], client_service=session.service_name)
+
+            async for raw_message in websocket:
+                try:
+                    await self._handle_message(session, raw_message)
+                except ValidationError as err:
+                    await self._send_error(websocket, err, trace_id=new_trace_id(), target=session.service_name)
+                    self._logger.event(
+                        logging.WARNING,
+                        'message.rejected',
+                        new_trace_id(),
+                        client_service=session.service_name,
+                        code=err.code,
+                        reason=err.message
+                    )
+        except (json.JSONDecodeError, ValidationError) as err:
+            if isinstance(err, ValidationError):
+                await self._send_error(websocket, err, trace_id=new_trace_id(), target='unknown')
+                self._logger.event(logging.WARNING, 'message.invalid', new_trace_id(), code=err.code, reason=err.message)
+            else:
+                parse_error = ValidationError('ERR_INVALID_JSON', 'message must be valid JSON')
+                await self._send_error(websocket, parse_error, trace_id=new_trace_id(), target='unknown')
+                self._logger.event(logging.WARNING, 'message.invalid_json', new_trace_id())
+        except websockets.exceptions.ConnectionClosed:
+            pass
+        finally:
+            if session and self._clients.get(session.service_name) is session:
+                self._clients.pop(session.service_name, None)
+                self._logger.event(logging.INFO, 'client.disconnected', new_trace_id(), client_service=session.service_name)
+
+    async def _handle_message(self, session: ClientSession, raw_message: str) -> None:
+        envelope = validate_envelope(json.loads(raw_message))
+        session.last_seen_monotonic = asyncio.get_running_loop().time()
+
+        topic = envelope['topic']
+        trace_id = envelope['trace_id']
+
+        if topic == 'hb.ping':
+            await session.websocket.send(json.dumps(self._build_envelope('ipc-hub', session.service_name, 'hb.pong', trace_id, {})))
+            return
+
+        target_name = envelope['to']
+        target = self._clients.get(target_name)
+
+        if not target:
+            raise ValidationError('ERR_UNKNOWN_DESTINATION', f'unknown destination service: {target_name}')
+
+        await target.websocket.send(json.dumps(envelope))
+        self._logger.event(
+            logging.INFO,
+            'route.forwarded',
+            trace_id,
+            from_service=session.service_name,
+            to_service=target_name,
+            topic=topic,
+            reply_to=envelope.get('reply_to')
+        )
+
+    async def _send_auth_ok(self, websocket: WebSocketServerProtocol, incoming: dict[str, Any]) -> None:
+        response = self._build_envelope(
+            sender='ipc-hub',
+            target=incoming['from'],
+            topic='auth.ok',
+            trace_id=incoming['trace_id'],
+            payload={'service': incoming['from']},
+            reply_to=incoming['id']
         )
         await websocket.send(json.dumps(response))
-        await websocket.close()
 
-    async def message_loop(
+    def _create_session_from_auth(self, validated: dict[str, Any], websocket: WebSocketServerProtocol) -> ClientSession:
+        auth_payload = validated.get('payload') or {}
+        if auth_payload.get('token') != AUTH_TOKEN:
+            raise ValidationError('ERR_AUTH_INVALID', 'invalid auth token')
+
+        service_name = str(validated['from'])
+        return ClientSession(
+            service_name=service_name,
+            websocket=websocket,
+            last_seen_monotonic=asyncio.get_running_loop().time()
+        )
+
+    async def _send_error(
         self,
         websocket: WebSocketServerProtocol,
-        service_name: str,
-        trace_id: str
-    ):
-        """Main message routing loop for authenticated service."""
-        async for raw_msg in websocket:
-            try:
-                msg = json.loads(raw_msg)
-                
-                # Validate envelope
-                jsonschema.validate(instance=msg, schema=self.envelope_schema)
-                
-                # Extract routing info
-                to_service = msg["to"]
-                topic = msg["topic"]
-                msg_trace_id = msg["trace_id"]
-                
-                log_with_trace(
-                    self.logger, "debug",
-                    f"Routing {topic} from {service_name} to {to_service}",
-                    msg_trace_id
-                )
-                
-                # Handle heartbeat locally
-                if topic == "hb.ping":
-                    response = self.create_message(
-                        from_service="ipc-hub",
-                        to_service=service_name,
-                        topic="hb.pong",
-                        payload={},
-                        trace_id=msg_trace_id,
-                        reply_to=msg["id"]
-                    )
-                    await websocket.send(json.dumps(response))
-                    continue
-                
-                # Route to target service
-                if to_service == "broadcast":
-                    # Broadcast to all except sender
-                    for target_name, target_ws in self.services.items():
-                        if target_name != service_name:
-                            await target_ws.send(raw_msg)
-                elif to_service in self.services:
-                    # Send to specific service
-                    await self.services[to_service].send(raw_msg)
-                else:
-                    # Service not found
-                    log_with_trace(
-                        self.logger, "warning",
-                        f"Target service {to_service} not connected",
-                        msg_trace_id
-                    )
-                    
-            except json.JSONDecodeError as e:
-                log_with_trace(
-                    self.logger, "error",
-                    f"Invalid JSON from {service_name}: {e}",
-                    trace_id
-                )
-            except jsonschema.ValidationError as e:
-                log_with_trace(
-                    self.logger, "error",
-                    f"Schema validation failed from {service_name}: {e}",
-                    trace_id
-                )
-
-    def create_message(
-        self,
-        from_service: str,
-        to_service: str,
-        topic: str,
-        payload: dict,
+        error: ValidationError,
         trace_id: str,
-        reply_to: Optional[str] = None
-    ) -> dict:
-        """Create a properly formatted IPC message."""
+        target: str
+    ) -> None:
+        payload = error.to_error_payload()
+        response = self._build_envelope(
+            sender='ipc-hub',
+            target=target,
+            topic='ipc.error',
+            trace_id=trace_id,
+            payload=payload
+        )
+        await websocket.send(json.dumps(response))
+
+    def _build_envelope(
+        self,
+        sender: str,
+        target: str,
+        topic: str,
+        trace_id: str,
+        payload: dict[str, Any],
+        reply_to: str | None = None
+    ) -> dict[str, Any]:
         return {
-            "v": 1,
-            "id": generate_trace_id(),
-            "ts": datetime.now(timezone.utc).isoformat(),
-            "from": from_service,
-            "to": to_service,
-            "topic": topic,
-            "reply_to": reply_to,
-            "trace_id": trace_id,
-            "payload": payload
+            'v': 1,
+            'id': new_trace_id(),
+            'ts': datetime.now(timezone.utc).isoformat(),
+            'from': sender,
+            'to': target,
+            'topic': topic,
+            'reply_to': reply_to,
+            'trace_id': trace_id,
+            'payload': payload
         }
+
+    async def _monitor_heartbeats(self) -> None:
+        loop = asyncio.get_running_loop()
+        while True:
+            await asyncio.sleep(5)
+            await self._expire_stale_clients(loop.time())
+
+    async def _expire_stale_clients(self, now: float) -> None:
+        stale = [
+            session for session in self._clients.values()
+            if (now - session.last_seen_monotonic) > HEARTBEAT_TIMEOUT_SECONDS
+        ]
+        for session in stale:
+            self._logger.event(
+                logging.WARNING,
+                'client.timeout',
+                new_trace_id(),
+                client_service=session.service_name,
+                timeout_seconds=HEARTBEAT_TIMEOUT_SECONDS
+            )
+            await session.websocket.close(code=1001, reason='heartbeat_timeout')
+            self._clients.pop(session.service_name, None)
+
+
+async def main() -> None:
+    server = IpcHubServer()
+    await server.run()
+
+
+if __name__ == '__main__':
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        pass

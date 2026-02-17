@@ -1,0 +1,45 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "chat.assistant_plan payload",
+    "type": "object",
+    "required": ["summary", "needs_confirmation", "proposed_tools", "proposed_calls"],
+    "properties": {
+        "summary": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+        },
+        "needs_confirmation": {
+            "type": "boolean"
+        },
+        "proposed_tools": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["name", "risk", "reason"],
+                "properties": {
+                    "name": {"type": "string", "minLength": 1},
+                    "risk": {"type": "string", "enum": ["low", "medium", "high"]},
+                    "reason": {"type": "string", "minLength": 1}
+                },
+                "additionalProperties": false
+            }
+        },
+        "proposed_calls": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["call_id", "tool_name", "args", "confirmation_required", "risk"],
+                "properties": {
+                    "call_id": {"type": "string", "minLength": 1},
+                    "tool_name": {"type": "string", "minLength": 1},
+                    "args": {"type": "object"},
+                    "confirmation_required": {"type": "boolean"},
+                    "risk": {"type": "string", "enum": ["low", "medium", "high"]}
+                },
+                "additionalProperties": false
+            }
+        }
+    },
+    "additionalProperties": false
+}
