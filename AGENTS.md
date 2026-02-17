@@ -1,30 +1,29 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-This repo is a webpack-based frontend portfolio site.
-- `src/`: application source.
-- `src/index.jsx`: app entry point.
-- `src/styles/`: SCSS modules (feature-focused files like `hero_header.scss`, `projects.scss`).
-- `src/data/`: JSON content (for example `work.json`, `blog_articles.json`).
-- `src/assets/`: static assets (icons, images, 3D model files).
-- `scripts/`: helper shell scripts (`minify.sh`, resume upload/update scripts).
-- `dist/`: generated build output (do not hand-edit).
+This repo is a Tauri-first desktop assistant monorepo.
+- `apps/desktop-ui/`: Tauri desktop UI (Vite frontend + Rust host).
+- `apps/ipc-hub/`: Python IPC hub service.
+- `services/`: Python services (`agent-core`, `automation-service`, `voice-service`, `skin-service`).
+- `shared/schemas/`: shared JSON message/tool schemas.
+- `configs/`: local config templates and permission policies.
+- `scripts/`: helper shell scripts.
 
 ## Build, Test, and Development Commands
-- `npm start`: run webpack dev server in development mode.
-- `npm run start:prod`: run webpack dev server using production mode.
-- `npm run build`: clean `dist/` and create production bundle via `webpack.prod.js`.
-- `npm run build:dev`: build with the development webpack config.
-- `./verify.sh`: project verification script; runs both dev and prod builds.
-- `npm run bundle-report`: build with stats and open bundle analyzer on port `4200`.
+- `npm run dev`: run `apps/desktop-ui` frontend dev server.
+- `npm run tauri:dev`: run desktop app in Tauri dev mode.
+- `npm run build`: build frontend assets for desktop packaging.
+- `npm run tauri:build`: build desktop bundle via Tauri.
+- `./verify.sh`: project verification script (`npm run build` + Rust `cargo check`).
+- `./scripts/dev-up.sh`: start local dev stack (`ipc-hub`, `agent-core`, `desktop-ui`).
+- `python3 scripts/typed_chat_smoke.py`: run typed-chat IPC smoke test.
 
 ## Coding Style & Naming Conventions
 - Indentation is 4 spaces (`.editorconfig`, `.prettierrc`).
 - Use single quotes and semicolons (`.prettierrc`).
-- ESLint extends `eslint:recommended` and `react-app`; run linting before opening PRs.
-- Keep component/module filenames in lowercase with underscores where already established (for example `contact_form.jsx`, `growth_chart.jsx`).
-- Keep styles split by feature in `src/styles/` instead of one monolithic stylesheet.
-- For UI consistency, reuse existing control styles from shared/global rules (`src/styles/style.scss`) and avoid introducing one-off button borders/shapes unless a section explicitly requires a new visual pattern.
+- Keep JS/TS modules in lowercase with underscores where already established.
+- Keep styles split by feature in `apps/desktop-ui/src/` instead of one monolithic stylesheet.
+- Prefer shared UI tokens/styles over one-off control treatments.
 - For theme toggles, show the icon for the target mode (`moon` in light mode, `sun` in dark mode) and keep nav icon buttons visually neutral (no custom circular border treatment unless explicitly requested).
 - Do not add arrow glyphs (`→`, `←`) in action labels and do not style action text as bold/oversized by default; keep action labels neutral unless explicitly requested.
 
@@ -40,9 +39,9 @@ This repo is a webpack-based frontend portfolio site.
 - Avoid purple-on-white cliches, generic component grids, and predictable layouts.
 
 ## Testing Guidelines
-There is currently no dedicated unit/integration test framework configured. CI (`.github/workflows/webpack.yml`) validates builds on PRs using Node 18 and `npm run build`.
+There is currently no dedicated unit/integration test framework configured. CI validates frontend build and Rust host check on PRs.
 - Minimum local check: `./verify.sh` before commit or PR.
-- For UI changes, perform manual validation in `npm start` and confirm production build succeeds.
+- For UI changes, perform manual validation in `npm run tauri:dev` and confirm build succeeds.
 
 ## Commit & Pull Request Guidelines
 Git history currently mixes patch-version commits (for example `0.0.91`) with short, informal messages. For collaboration, prefer clear imperative commit subjects like `Fix hero animation timing`.
@@ -57,6 +56,8 @@ Git history currently mixes patch-version commits (for example `0.0.91`) with sh
 ## Planning & Product Context
 - Read `ROADMAP.md` before starting any task.
 - Every task must align with the roadmap plan; if scope changes, update `ROADMAP.md` in the same work session to reflect status, sequencing, or new tasks.
+- Before implementing, mark the selected roadmap task as `in progress` in `ROADMAP.md` to claim a lock and avoid overlap with other agents.
+- When implementation is complete, mark that roadmap task as `Done` in `ROADMAP.md` (and include completion date when possible) before handing off.
 - Maintain a `specs/` folder with feature-level product documentation (one file per feature/workstream when possible).
 - Keep `specs/` and `ROADMAP.md` synchronized: roadmap items should reference corresponding specs, and specs should reference roadmap phase/task IDs.
 - Treat `ROADMAP.md` and `specs/` as required context so agents always know current product direction and the next priority.

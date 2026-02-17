@@ -4,7 +4,7 @@ Related roadmap tasks: `P0-T1`, `P1-T1`, `P2-T3`, `P3-T4`, `P4-T4`
 
 ## System Topology
 Multi-process local architecture with a single IPC hub:
-- `desktop-ui` (Electron): overlay, chat bubble, confirmations, settings
+- `desktop-ui` (Tauri): overlay, chat bubble, confirmations, settings
 - `ipc-hub` (Python): local message bus, auth, routing, heartbeat
 - `agent-core` (Python): planning, model interface, tool proposal generation
 - `automation-service` (Python): executes tools under policy and confirmation
@@ -64,3 +64,4 @@ Rule: no direct service-to-service calls except through `ipc-hub`.
 - Trace ID propagation across every message
 - JSON-schema-validated boundaries
 - Config-driven permissions and model paths
+- Structured JSON logs per `specs/logging_conventions.md`

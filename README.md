@@ -3,7 +3,7 @@
 ![Status](https://img.shields.io/badge/status-active%20planning-0a7ea4)
 ![Roadmap](https://img.shields.io/badge/roadmap-authoritative-1f6feb)
 ![Specs](https://img.shields.io/badge/specs-required-2ea043)
-![Stack](https://img.shields.io/badge/stack-Electron%20%2B%20Python-f59e0b)
+![Stack](https://img.shields.io/badge/stack-Tauri%20%2B%20Python-f59e0b)
 ![Privacy](https://img.shields.io/badge/privacy-local--first-8b5cf6)
 
 Cross-platform desktop voice assistant with a floating character UI, local-first voice pipeline, safe tool execution, and a skin-based appearance system.
@@ -36,7 +36,7 @@ TaskSprite is a local-first assistant that can:
 
 ## Architecture Snapshot
 High-level components:
-- `desktop-ui` (Electron): overlay, chat bubble, confirmations
+- `desktop-ui` (Tauri): overlay, chat bubble, confirmations
 - `ipc-hub` (Python): local WebSocket bus, auth, routing, heartbeat
 - `agent-core` (Python): plan generation, tool proposals, response composition
 - `automation-service` (Python): policy-enforced tool execution + audit logs
@@ -50,13 +50,15 @@ All implementation work must map to a roadmap task ID (`P#-T#`) before coding st
 If scope changes, update both [`ROADMAP.md`](ROADMAP.md) and impacted spec files in `specs/` in the same session.
 
 ## Development Notes
-Current repository includes existing frontend assets and scripts.
-As TaskSprite implementation progresses, new app/service modules will be added following the architecture spec.
+Monorepo scaffold is now Tauri-first for desktop UI and Python-first for services.
 
-Common existing commands:
-- `npm start`
-- `npm run build`
-- `./verify.sh`
+Common commands:
+- `npm run dev` (frontend shell in `apps/desktop-ui`)
+- `npm run tauri:dev` (desktop app)
+- `npm run build` (frontend build)
+- `./verify.sh` (frontend build + Rust host check)
+- `./scripts/dev-up.sh` (start `ipc-hub` + `agent-core` + desktop-ui dev shell)
+- `python3 scripts/typed_chat_smoke.py` (typed-chat IPC smoke test)
 
 ## Contributing
 1. Read [`ROADMAP.md`](ROADMAP.md) first.

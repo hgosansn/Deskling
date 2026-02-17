@@ -1,0 +1,11 @@
+[app]
+name = "TaskSprite"
+mode = "local"
+
+[ipc]
+host = "127.0.0.1"
+port = 5454
+heartbeat_ms = 5000
+
+[paths]
+audit_log = "./logs/audit.log"

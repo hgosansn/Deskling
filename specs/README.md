@@ -9,6 +9,8 @@ This folder is the product context source of truth.
 3. `specs/architecture.md`
 4. `specs/ipc_protocol.md`
 5. `specs/tool_system.md`
+6. `specs/logging_conventions.md`
+7. `specs/tokenomics.md`
 
 ## Sync Rules
 - Every roadmap task must map to at least one spec section.
@@ -20,3 +22,5 @@ This folder is the product context source of truth.
 - `specs/architecture.md` - services, boundaries, repository baseline
 - `specs/ipc_protocol.md` - message envelopes, topics, validation, failures
 - `specs/tool_system.md` - tool schema contract, safety policy, initial tool catalog
+- `specs/logging_conventions.md` - structured logging shape and trace-id rules
+- `specs/tokenomics.md` - DSL utility-token economics and rollout constraints
