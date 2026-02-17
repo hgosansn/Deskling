@@ -77,18 +77,18 @@ Exit criteria:
 - ✅ Operator can send typed messages and receive responses through IPC.
 - ✅ Confirmation UX blocks risky actions by default.
 
-### Phase P3 - Agent Core V0 (3-7 days)
+### Phase P3 - Agent Core V0 (3-7 days) ✅ COMPLETE (2026-02-17)
 Goal: produce structured plans and tool requests safely.
 
 Tasks:
-- [ ] `P3-T1` Implement agent input/output contract from `specs/ipc_protocol.md`.
-- [ ] `P3-T2` Add planner output (`chat.assistant_plan`) with risk labeling.
-- [ ] `P3-T3` Add tool call proposal format and confirmation requirements.
-- [ ] `P3-T4` Add failure handling and retry suggestion templates.
+- [x] `P3-T1` Implement agent input/output contract from `specs/ipc_protocol.md`. (2026-02-17)
+- [x] `P3-T2` Add planner output (`chat.assistant_plan`) with risk labeling. (2026-02-17)
+- [x] `P3-T3` Add tool call proposal format and confirmation requirements. (2026-02-17)
+- [x] `P3-T4` Add failure handling and retry suggestion templates. (2026-02-17)
 
 Exit criteria:
-- Agent can respond to typed requests with clear plan and structured tool proposals.
-- No direct execution path from agent-core to OS actions.
+- ✅ Agent can respond to typed requests with clear plan and structured tool proposals.
+- ✅ No direct execution path from agent-core to OS actions.
 
 ### Phase P4 - Automation Service V0 (4-10 days)
 Goal: execute approved tools with auditability and hard safety boundaries.
