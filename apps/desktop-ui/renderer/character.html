@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Deskling Character</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: transparent;
+            overflow: hidden;
+            user-select: none;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            -webkit-app-region: drag;
+        }
+
+        #character-container {
+            width: 300px;
+            height: 400px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 20px;
+        }
+
+        #speech-bubble {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #333;
+            border-radius: 20px;
+            padding: 15px 20px;
+            max-width: 250px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        #speech-bubble.show {
+            opacity: 1;
+        }
+
+        #speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 15px solid rgba(255, 255, 255, 0.95);
+        }
+
+        #speech-text {
+            color: #333;
+            font-size: 14px;
+            line-height: 1.4;
+            text-align: center;
+        }
+
+        #character {
+            position: relative;
+            width: 120px;
+            height: 180px;
+            cursor: pointer;
+            -webkit-app-region: no-drag;
+        }
+
+        /* Stickman character using SVG */
+        .stickman {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Animation states */
+        .stickman.idle {
+            animation: idle-bounce 2s ease-in-out infinite;
+        }
+
+        .stickman.talking {
+            animation: talk-bob 0.5s ease-in-out infinite;
+        }
+
+        @keyframes idle-bounce {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes talk-bob {
+            0%, 100% {
+                transform: scale(1) translateY(0);
+            }
+            50% {
+                transform: scale(1.05) translateY(-5px);
+            }
+        }
+
+        /* Hover effect */
+        #character:hover .stickman {
+            transform: scale(1.1);
+            transition: transform 0.2s ease;
+        }
+
+        /* Status indicator */
+        #status {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div id="character-container">
+        <div id="speech-bubble">
+            <div id="speech-text">Hello! Click me to chat!</div>
+        </div>
+        
+        <div id="character">
+            <svg class="stickman idle" viewBox="0 0 120 180" xmlns="http://www.w3.org/2000/svg">
+                <!-- Head -->
+                <circle cx="60" cy="30" r="20" fill="#333" stroke="#000" stroke-width="2"/>
+                
+                <!-- Eyes -->
+                <circle cx="52" cy="28" r="3" fill="#fff"/>
+                <circle cx="68" cy="28" r="3" fill="#fff"/>
+                <circle cx="53" cy="28" r="1.5" fill="#000"/>
+                <circle cx="69" cy="28" r="1.5" fill="#000"/>
+                
+                <!-- Smile -->
+                <path d="M 50 35 Q 60 40 70 35" stroke="#000" stroke-width="2" fill="none" stroke-linecap="round"/>
+                
+                <!-- Body -->
+                <line x1="60" y1="50" x2="60" y2="100" stroke="#333" stroke-width="4" stroke-linecap="round"/>
+                
+                <!-- Arms -->
+                <line x1="60" y1="65" x2="35" y2="85" stroke="#333" stroke-width="4" stroke-linecap="round"/>
+                <line x1="60" y1="65" x2="85" y2="85" stroke="#333" stroke-width="4" stroke-linecap="round"/>
+                
+                <!-- Legs -->
+                <line x1="60" y1="100" x2="40" y2="140" stroke="#333" stroke-width="4" stroke-linecap="round"/>
+                <line x1="60" y1="100" x2="80" y2="140" stroke="#333" stroke-width="4" stroke-linecap="round"/>
+                
+                <!-- Feet -->
+                <line x1="40" y1="140" x2="30" y2="140" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+                <line x1="80" y1="140" x2="90" y2="140" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+        </div>
+
+        <div id="status">Drag me around!</div>
+    </div>
+
+    <script>
+        const speechBubble = document.getElementById('speech-bubble');
+        const speechText = document.getElementById('speech-text');
+        const character = document.getElementById('character');
+        const stickman = document.querySelector('.stickman');
+        const status = document.getElementById('status');
+
+        // Sample messages for interaction
+        const messages = [
+            "Hi there! 👋",
+            "I'm Deskling, your desktop buddy!",
+            "Drag me anywhere you like!",
+            "Click me again for another message!",
+            "I can show text in speech bubbles!",
+            "Having fun yet? 😊",
+            "I'm a simple stickman for now!",
+            "This is the MVP demo!",
+            "More features coming soon!",
+            "You can build amazing things with Electron!"
+        ];
+
+        let messageIndex = 0;
+        let speechTimeout = null;
+
+        // Show speech bubble with message
+        function showSpeech(message) {
+            speechText.textContent = message;
+            speechBubble.classList.add('show');
+            stickman.className = 'stickman talking';
+            
+            // Hide after 3 seconds
+            if (speechTimeout) clearTimeout(speechTimeout);
+            speechTimeout = setTimeout(() => {
+                speechBubble.classList.remove('show');
+                stickman.className = 'stickman idle';
+            }, 3000);
+        }
+
+        // Click character to show message
+        character.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const message = messages[messageIndex % messages.length];
+            messageIndex++;
+            showSpeech(message);
+        });
+
+        // Show welcome message on load
+        setTimeout(() => {
+            showSpeech(messages[0]);
+            messageIndex = 1;
+        }, 500);
+
+        // Hide status after a few seconds
+        setTimeout(() => {
+            status.style.opacity = '0';
+            status.style.transition = 'opacity 1s ease';
+        }, 3000);
+    </script>
+</body>
+</html>
