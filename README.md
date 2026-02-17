@@ -1,4 +1,4 @@
-# TaskSprite
+# Deskling
 
 ![Status](https://img.shields.io/badge/status-active%20planning-0a7ea4)
 ![Roadmap](https://img.shields.io/badge/roadmap-authoritative-1f6feb)
