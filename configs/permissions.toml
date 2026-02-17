@@ -1,9 +1,0 @@
-[tools]
-default_policy = "confirm_medium_high"
-
-[tools.clipboard]
-risk = "low"
-
-[tools.file]
-risk = "medium"
-allowed_paths = ["/home"]
