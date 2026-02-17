@@ -1,6 +1,26 @@
-# Project Roadmap - Cross-Platform Voice Desktop Mate
+# Project Roadmap - Deskling Desktop Companion
 
 Last updated: 2026-02-17
+
+## Dual Implementation Approach
+
+This repository contains **two parallel implementations**:
+
+1. **Rust Standalone MVP** (`deskling-character/`)
+   - Lightweight character-only demo
+   - Single-process egui/eframe application
+   - ~9 MB binary, <0.5s startup, minimal RAM
+   - Status: ✅ Complete and functional
+   - See: [`RUST_IMPLEMENTATION.md`](RUST_IMPLEMENTATION.md)
+
+2. **Full Product** (Tauri + Python/Rust services)
+   - Multi-service voice assistant architecture
+   - IPC-based communication
+   - Complete feature set (voice, LLM, tools, etc.)
+   - Status: 🚧 Active development
+   - See: Full roadmap below
+
+Both implementations serve different use cases and can evolve independently.
 
 ## Purpose
 This roadmap is the execution plan for building the product. It is intentionally concise and phase-driven.
