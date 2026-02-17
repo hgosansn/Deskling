@@ -1,17 +1,19 @@
-name: NodeJS with Webpack
+name: Build and Test
 
 on:
     pull_request:
         branches:
             - main
     workflow_dispatch:
+
 jobs:
     test:
-        name: Test
+        name: Build and Validate
         runs-on: ubuntu-latest
         strategy:
             matrix:
                 node-version: [18.x]
+                python-version: ['3.10']
         steps:
             - uses: actions/checkout@v3
 
@@ -19,9 +21,32 @@ jobs:
               uses: actions/setup-node@v3
               with:
                   node-version: ${{ matrix.node-version }}
-                  cache: 'npm'
 
-            - name: Build
+            - name: Set up Python ${{ matrix.python-version }}
+              uses: actions/setup-python@v4
+              with:
+                  python-version: ${{ matrix.python-version }}
+
+            - name: Install Desktop UI dependencies
               run: |
+                  cd apps/desktop-ui
                   npm install
-                  npm run build
+
+            - name: Install Python dependencies
+              run: |
+                  pip install -r shared/requirements.txt
+                  pip install -r apps/ipc-hub/requirements.txt
+                  pip install -r services/agent-core/requirements.txt
+                  pip install -r services/automation-service/requirements.txt
+
+            - name: Validate project structure
+              run: |
+                  chmod +x scripts/build-all.sh
+                  ./scripts/build-all.sh
+
+            - name: Python syntax check
+              run: |
+                  python -m py_compile apps/ipc-hub/*.py
+                  python -m py_compile services/agent-core/*.py
+                  python -m py_compile services/automation-service/*.py
+                  python -m py_compile shared/*.py
