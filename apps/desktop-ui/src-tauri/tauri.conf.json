@@ -1,24 +1,22 @@
 {
     "$schema": "https://schema.tauri.app/config/2",
-    "productName": "TaskSprite",
+    "productName": "Deskling",
     "version": "0.1.0",
-    "identifier": "com.hgosansn.tasksprite",
+    "identifier": "com.hgosansn.deskling",
     "build": {
-        "beforeDevCommand": "npm run dev",
-        "beforeBuildCommand": "npm run build",
-        "devUrl": "http://127.0.0.1:1420",
-        "frontendDist": "../dist"
+        "frontendDist": "../"
     },
     "app": {
         "windows": [
             {
-                "title": "TaskSprite",
-                "width": 1080,
-                "height": 720,
-                "resizable": true,
+                "title": "Deskling",
+                "width": 300,
+                "height": 400,
+                "resizable": false,
                 "alwaysOnTop": true,
                 "transparent": true,
-                "decorations": false
+                "decorations": false,
+                "center": true
             }
         ],
         "security": {

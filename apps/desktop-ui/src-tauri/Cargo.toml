@@ -1,8 +1,8 @@
 [package]
-name = "desktop_ui"
+name = "deskling"
 version = "0.1.0"
-description = "TaskSprite desktop shell"
-authors = ["TaskSprite"]
+description = "Deskling desktop character"
+authors = ["Deskling"]
 edition = "2021"
 
 [build-dependencies]
@@ -12,5 +12,5 @@ tauri-build = { version = "2.0.0" }
 tauri = { version = "2.0.0", features = [] }
 
 [[bin]]
-name = "desktop-ui"
+name = "deskling"
 path = "src/main.rs"
