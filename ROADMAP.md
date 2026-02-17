@@ -63,19 +63,19 @@ Exit criteria:
 - ✅ UI and 2 services can connect and exchange validated messages.
 - ✅ Lost heartbeat disconnect and reconnect path is observable in logs.
 
-### Phase P2 - Desktop UI Shell (3-6 days)
+### Phase P2 - Desktop UI Shell (3-6 days) ✅ COMPLETE (2026-02-17)
 Goal: deliver visible assistant shell with state transitions.
 
 Tasks:
-- [ ] `P2-T1` Create transparent always-on-top overlay window.
-- [ ] `P2-T2` Add draggable character and chat bubble.
-- [ ] `P2-T3` Implement state machine (`idle`, `listen`, `think`, `speak`, `run`, `error`).
-- [ ] `P2-T4` Build confirmation dialog UI for risky tool actions.
-- [ ] `P2-T5` Add base settings panel (audio device, model paths, voice).
+- [x] `P2-T1` Create transparent always-on-top overlay window. (2026-02-17)
+- [x] `P2-T2` Add draggable character and chat bubble. (2026-02-17)
+- [x] `P2-T3` Implement state machine (`idle`, `listen`, `think`, `speak`, `run`, `error`). (2026-02-17)
+- [x] `P2-T4` Build confirmation dialog UI for risky tool actions. (2026-02-17)
+- [ ] `P2-T5` Add base settings panel (audio device, model paths, voice). (Deferred - not critical for initial validation)
 
 Exit criteria:
-- Operator can send typed messages and receive responses through IPC.
-- Confirmation UX blocks risky actions by default.
+- ✅ Operator can send typed messages and receive responses through IPC.
+- ✅ Confirmation UX blocks risky actions by default.
 
 ### Phase P3 - Agent Core V0 (3-7 days)
 Goal: produce structured plans and tool requests safely.
