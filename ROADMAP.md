@@ -1,43 +1,66 @@
-# Project Roadmap - Cross-Platform Voice Desktop Mate
+# Project Roadmap - Desktop Character Companion (MVP Rescope)
 
-Last updated: 2026-02-16
+Last updated: 2026-02-17
 
 ## Purpose
-This roadmap is the execution plan for building the product. It is intentionally concise and phase-driven.
-Detailed design and implementation rules live in `specs/`.
+This roadmap defines the **MVP-first execution plan** focused on delivering a delightful, visually appealing desktop character companion.
+
+**MVP RESCOPE (2026-02-17)**: The primary goal is to create a working desktop demo with a draggable character sprite and speech bubbles. Full voice assistant features are retained in the codebase but deferred from active development focus.
 
 ## Canonical Context (read before implementation)
 - `ROADMAP.md` - sequencing, priorities, milestones, status
-- `specs/project_scope.md` - product definition, goals, non-goals, success criteria
-- `specs/architecture.md` - system architecture, service boundaries, repository layout
-- `specs/ipc_protocol.md` - inter-process protocol and conversation flows
-- `specs/tool_system.md` - tool contracts, risk model, confirmation policy, initial tool set
+- `specs/mvp_scope.md` - MVP character-first product definition
+- `specs/project_scope.md` - full product vision (deferred features)
+- `specs/architecture.md` - system architecture (preserved for future)
+- `specs/ipc_protocol.md` - inter-process protocol (preserved for future)
+- `specs/tool_system.md` - tool contracts (preserved for future)
 
-## Pre-Start Decisions (Locked)
-These are committed choices for v1 unless explicitly changed in roadmap updates.
+## MVP Decisions (2026-02-17 Rescope)
+Focus on delivering a delightful visual demo first, technical features second.
 
-- `D1` Runtime split: multi-process local system (`desktop-ui`, `ipc-hub`, `agent-core`, `voice-service`, `automation-service`, optional `skin-service`).
-- `D2` UI stack: Electron for v1 velocity. Tauri is a post-v1 optimization path.
-- `D3` Core service language: Python (fast AI iteration, mature local inference ecosystem).
-- `D4` IPC transport: local WebSocket hub on loopback only (`127.0.0.1`), JSON envelopes, heartbeat, token auth.
-- `D5` LLM runtime: Ollama-first abstraction with provider interface for future remote models.
-- `D6` STT: Whisper.cpp / faster-whisper adapter (local-first, offline-capable).
-- `D7` TTS: Piper local voices.
-- `D8` Browser automation: Playwright as default web execution path.
-- `D9` Desktop automation safety: confirmation-token gate for medium/high risk actions.
-- `D10` Character system: skin-pack format for v1; live generation is v1.5+.
-- `D11` Initial release mode: push-to-talk first; wake-word deferred.
-- `D12` Data/privacy baseline: local-first storage, audit logs for tool actions, no secret leakage in assistant responses.
+**MVP SCOPE (In Active Development):**
+- `M1` Electron desktop UI with transparent, always-on-top window
+- `M2` Simple animated stickman character sprite
+- `M3` Draggable character around the screen
+- `M4` Speech bubble system for text display
+- `M5` Click/hover interactions with idle animations
+- `M6` Works on Fedora Linux (and other platforms)
 
-## Out of Scope for V1
-- Always-on wake-word by default
-- Fully autonomous destructive actions without confirmation
-- Real-time generated 3D avatar creation
-- Cloud dependency as required path
+**PRESERVED (Implemented but Not MVP Focus):**
+- `D1` Multi-process architecture (IPC hub, agent-core, services) - retained in codebase
+- `D2` UI stack: Electron
+- `D3-D12` Voice, LLM, tool execution features - preserved but not demo priority
+
+## Out of Scope for MVP Demo
+- Complex multi-service coordination
+- Voice conversation pipeline
+- LLM integration and tool execution
+- Always-on wake-word
+- Cloud dependencies
 
 ## Phase Plan
 
-### Phase P0 - Setup and Governance (1-2 days) ✅ COMPLETE (2026-02-17)
+### Phase MVP-P1 - Character UI Demo (1-3 days) 🎯 ACTIVE (2026-02-17)
+Goal: deliver visually appealing desktop character that users can interact with.
+
+Tasks:
+- [ ] `MVP-T1` Create standalone character window (transparent, draggable, always-on-top)
+- [ ] `MVP-T2` Design and implement simple stickman sprite with idle animation
+- [ ] `MVP-T3` Implement character dragging around screen
+- [ ] `MVP-T4` Add speech bubble system with text display
+- [ ] `MVP-T5` Add minimal interactions (click for random message, hover effects)
+- [ ] `MVP-T6` Test and verify on Fedora Linux
+- [ ] `MVP-T7` Add basic character states (idle, talking, moving)
+- [ ] `MVP-T8` Polish animations and visual appeal
+
+Exit criteria:
+- ✅ Character window launches and floats on screen
+- ✅ User can drag character to any position
+- ✅ Speech bubbles appear with sample text
+- ✅ Works reliably on Fedora (and other OSes)
+- ✅ Visually appealing and fun to interact with
+
+### Phase P0 - Setup and Governance ✅ COMPLETE (2026-02-17)
 Goal: create the delivery baseline before writing feature code.
 
 Tasks:
@@ -50,7 +73,7 @@ Exit criteria:
 - ✅ Single command can start hub + one stub service + UI shell.
 - ✅ All new modules follow the shared naming and config conventions.
 
-### Phase P1 - IPC Backbone (2-4 days) ✅ COMPLETE (2026-02-17)
+### Phase P1 - IPC Backbone ✅ COMPLETE (2026-02-17) [PRESERVED]
 Goal: establish reliable local communication and routing.
 
 Tasks:
@@ -63,7 +86,7 @@ Exit criteria:
 - ✅ UI and 2 services can connect and exchange validated messages.
 - ✅ Lost heartbeat disconnect and reconnect path is observable in logs.
 
-### Phase P2 - Desktop UI Shell (3-6 days) ✅ COMPLETE (2026-02-17)
+### Phase P2 - Desktop UI Shell ✅ COMPLETE (2026-02-17) [PRESERVED]
 Goal: deliver visible assistant shell with state transitions.
 
 Tasks:
@@ -77,7 +100,7 @@ Exit criteria:
 - ✅ Operator can send typed messages and receive responses through IPC.
 - ✅ Confirmation UX blocks risky actions by default.
 
-### Phase P3 - Agent Core V0 (3-7 days) ✅ COMPLETE (2026-02-17)
+### Phase P3 - Agent Core V0 ✅ COMPLETE (2026-02-17) [PRESERVED]
 Goal: produce structured plans and tool requests safely.
 
 Tasks:
@@ -90,7 +113,7 @@ Exit criteria:
 - ✅ Agent can respond to typed requests with clear plan and structured tool proposals.
 - ✅ No direct execution path from agent-core to OS actions.
 
-### Phase P4 - Automation Service V0 (4-10 days) ✅ COMPLETE (2026-02-17)
+### Phase P4 - Automation Service V0 ✅ COMPLETE (2026-02-17) [PRESERVED]
 Goal: execute approved tools with auditability and hard safety boundaries.
 
 Tasks:
@@ -104,7 +127,7 @@ Exit criteria:
 - ✅ Tool execution returns traceable results.
 - ✅ Audit log can reconstruct who asked for what and what changed.
 
-### Phase P5 - Voice Service V0 (4-10 days)
+### Phase P5 - Voice Service V0 [DEFERRED - Post-MVP]
 Goal: add local voice conversation loop.
 
 Tasks:
@@ -117,7 +140,7 @@ Exit criteria:
 - User can complete voice turn end-to-end (speak -> plan/response -> spoken output).
 - Latency and errors are visible in telemetry logs.
 
-### Phase P6 - Character Skins V0 (2-7 days)
+### Phase P6 - Character Skins V0 [DEFERRED - Post-MVP]
 Goal: make appearance system configurable without runtime code changes.
 
 Tasks:
@@ -128,7 +151,7 @@ Tasks:
 Exit criteria:
 - Skins can be switched at runtime without restarting services.
 
-### Phase P7 - V1 Hardening and Packaging (1-3 weeks)
+### Phase P7 - V1 Hardening and Packaging [DEFERRED - Post-MVP]
 Goal: make the product installable and operationally safe.
 
 Tasks:
@@ -141,16 +164,20 @@ Exit criteria:
 - V1 build is installable, recoverable, and policy-compliant.
 
 ## Milestone Gates
-- `M1` (after P2): typed chat UI working over IPC.
-- `M2` (after P4): approved tool actions execute with audit logs.
-- `M3` (after P5): local voice conversation stable.
-- `M4` (after P6): skin packs hot-swappable.
-- `M5` (after P7): packaged release candidate.
+- `M-MVP` (after MVP-P1): **Character demo working on Fedora** ← CURRENT FOCUS
+- `M1` (after P2): typed chat UI working over IPC [COMPLETE, PRESERVED]
+- `M2` (after P4): approved tool actions execute with audit logs [COMPLETE, PRESERVED]
+- `M3` (after P5): local voice conversation stable [DEFERRED]
+- `M4` (after P6): skin packs hot-swappable [DEFERRED]
+- `M5` (after P7): packaged release candidate [DEFERRED]
 
-## Immediate Next Actions
-- [ ] `N1` Create scaffolding for `ipc-hub`, `desktop-ui`, `agent-core`.
-- [ ] `N2` Implement minimal envelope validation and routing smoke test.
-- [ ] `N3` Build typed-chat vertical slice (`desktop-ui` -> `agent-core` -> `desktop-ui`).
+## Immediate Next Actions (MVP Focus)
+- [x] `N1` Update roadmap to reflect MVP character-first scope (2026-02-17)
+- [ ] `N2` Simplify desktop-ui to standalone character mode
+- [ ] `N3` Implement stickman sprite graphics
+- [ ] `N4` Add draggable character behavior
+- [ ] `N5` Create speech bubble system
+- [ ] `N6` Test on Fedora and capture demo screenshots
 
 ## Roadmap Update Rules
 - Every completed task must be checked and dated in this file.
