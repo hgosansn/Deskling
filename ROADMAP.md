@@ -188,6 +188,7 @@ Exit criteria:
 - [x] `N1` Create scaffolding for `ipc-hub`, `desktop-ui`, `agent-core`. (Done 2026-02-16)
 - [x] `N2` Implement minimal envelope validation and routing smoke test. (Done 2026-02-16)
 - [x] `N3` Build typed-chat vertical slice (`desktop-ui` -> `agent-core` -> `desktop-ui`). (Done 2026-02-16)
+- [x] `N4` Reconcile divergent `main` histories while preserving locked decisions from `D2` (Tauri) and tokenomics references in `specs/tokenomics.md`. (Done 2026-02-17)
 
 ## Roadmap Update Rules
 - Every completed task must be checked and dated in this file.
