@@ -10,3 +10,9 @@ updates:
     # Check the npm registry for updates every day (weekdays)
     schedule:
       interval: "weekly"
+
+  # Enable version updates for Cargo
+  - package-ecosystem: "cargo"
+    directory: "/apps/desktop-ui/src-tauri"
+    schedule:
+      interval: "weekly"
