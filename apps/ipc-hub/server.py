@@ -5,7 +5,7 @@ import json
 import websockets
 from websockets.server import WebSocketServerProtocol
 from typing import Dict, Set, Optional
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import jsonschema
 from pathlib import Path
 
@@ -161,7 +161,7 @@ class IPCHub:
                 topic="auth.ok",
                 payload={
                     "session_token": generate_trace_id(),  # Simple token for now
-                    "expires_at": datetime.now(timezone.utc).isoformat()
+                    "expires_at": (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat()
                 },
                 trace_id=trace_id,
                 reply_to=msg["id"]

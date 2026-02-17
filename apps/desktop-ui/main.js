@@ -61,13 +61,13 @@ async function connectToIPCHub() {
             // Send auth.hello
             const authMsg = {
                 v: 1,
-                id: generateULID(),
+                id: generateSimpleId(),
                 ts: new Date().toISOString(),
                 from: 'desktop-ui',
                 to: 'ipc-hub',
                 topic: 'auth.hello',
                 reply_to: null,
-                trace_id: generateULID(),
+                trace_id: generateSimpleId(),
                 payload: {
                     service_name: 'desktop-ui',
                     capabilities: ['chat.user_message', 'confirm.grant'],
@@ -138,13 +138,13 @@ function sendHeartbeat() {
     
     const msg = {
         v: 1,
-        id: generateULID(),
+        id: generateSimpleId(),
         ts: new Date().toISOString(),
         from: 'desktop-ui',
         to: 'ipc-hub',
         topic: 'hb.ping',
         reply_to: null,
-        trace_id: generateULID(),
+        trace_id: generateSimpleId(),
         payload: {}
     };
     
@@ -170,13 +170,13 @@ ipcMain.on('send-user-message', (event, text) => {
     
     const msg = {
         v: 1,
-        id: generateULID(),
+        id: generateSimpleId(),
         ts: new Date().toISOString(),
         from: 'desktop-ui',
         to: 'agent-core',
         topic: 'chat.user_message',
         reply_to: null,
-        trace_id: generateULID(),
+        trace_id: generateSimpleId(),
         payload: {
             text: text,
             context: {}
@@ -193,13 +193,13 @@ ipcMain.on('grant-confirmation', (event, confirmToken) => {
     
     const msg = {
         v: 1,
-        id: generateULID(),
+        id: generateSimpleId(),
         ts: new Date().toISOString(),
         from: 'desktop-ui',
         to: 'agent-core',
         topic: 'confirm.grant',
         reply_to: null,
-        trace_id: generateULID(),
+        trace_id: generateSimpleId(),
         payload: {
             confirm_token: confirmToken
         }
@@ -208,8 +208,8 @@ ipcMain.on('grant-confirmation', (event, confirmToken) => {
     ipcHubWs.send(JSON.stringify(msg));
 });
 
-// Simple ULID-like ID generator (simplified for demo)
-function generateULID() {
+// Simple ID generator (not true ULID, just timestamp + random)
+function generateSimpleId() {
     return Date.now().toString(36) + Math.random().toString(36).substring(2);
 }
 
