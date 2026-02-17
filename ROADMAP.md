@@ -40,18 +40,18 @@ Focus on delivering a delightful visual demo first, technical features second.
 
 ## Phase Plan
 
-### Phase MVP-P1 - Character UI Demo (1-3 days) 🎯 ACTIVE (2026-02-17)
+### Phase MVP-P1 - Character UI Demo (1-3 days) ✅ COMPLETE (2026-02-17)
 Goal: deliver visually appealing desktop character that users can interact with.
 
 Tasks:
-- [ ] `MVP-T1` Create standalone character window (transparent, draggable, always-on-top)
-- [ ] `MVP-T2` Design and implement simple stickman sprite with idle animation
-- [ ] `MVP-T3` Implement character dragging around screen
-- [ ] `MVP-T4` Add speech bubble system with text display
-- [ ] `MVP-T5` Add minimal interactions (click for random message, hover effects)
-- [ ] `MVP-T6` Test and verify on Fedora Linux
-- [ ] `MVP-T7` Add basic character states (idle, talking, moving)
-- [ ] `MVP-T8` Polish animations and visual appeal
+- [x] `MVP-T1` Create standalone character window (transparent, draggable, always-on-top) (2026-02-17)
+- [x] `MVP-T2` Design and implement simple stickman sprite with idle animation (2026-02-17)
+- [x] `MVP-T3` Implement character dragging around screen (2026-02-17)
+- [x] `MVP-T4` Add speech bubble system with text display (2026-02-17)
+- [x] `MVP-T5` Add minimal interactions (click for random message, hover effects) (2026-02-17)
+- [x] `MVP-T6` Test and verify on Fedora Linux (2026-02-17)
+- [x] `MVP-T7` Add basic character states (idle, talking, moving) (2026-02-17)
+- [x] `MVP-T8` Polish animations and visual appeal (2026-02-17)
 
 Exit criteria:
 - ✅ Character window launches and floats on screen
@@ -164,7 +164,7 @@ Exit criteria:
 - V1 build is installable, recoverable, and policy-compliant.
 
 ## Milestone Gates
-- `M-MVP` (after MVP-P1): **Character demo working on Fedora** ← CURRENT FOCUS
+- `M-MVP` (after MVP-P1): **Character demo working on Fedora** ✅ COMPLETE (2026-02-17)
 - `M1` (after P2): typed chat UI working over IPC [COMPLETE, PRESERVED]
 - `M2` (after P4): approved tool actions execute with audit logs [COMPLETE, PRESERVED]
 - `M3` (after P5): local voice conversation stable [DEFERRED]
@@ -173,11 +173,11 @@ Exit criteria:
 
 ## Immediate Next Actions (MVP Focus)
 - [x] `N1` Update roadmap to reflect MVP character-first scope (2026-02-17)
-- [ ] `N2` Simplify desktop-ui to standalone character mode
-- [ ] `N3` Implement stickman sprite graphics
-- [ ] `N4` Add draggable character behavior
-- [ ] `N5` Create speech bubble system
-- [ ] `N6` Test on Fedora and capture demo screenshots
+- [x] `N2` Simplify desktop-ui to standalone character mode (2026-02-17)
+- [x] `N3` Implement stickman sprite graphics (2026-02-17)
+- [x] `N4` Add draggable character behavior (2026-02-17)
+- [x] `N5` Create speech bubble system (2026-02-17)
+- [x] `N6` Test on Fedora and capture demo screenshots (2026-02-17)
 
 ## Roadmap Update Rules
 - Every completed task must be checked and dated in this file.
