@@ -7,30 +7,45 @@ from pathlib import Path
 # Add shared to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
 
-from logging_utils import setup_logger, generate_trace_id
+from ipc_client import IPCClient
+from logging_utils import generate_trace_id, log_with_trace
+
+
+async def handle_user_message(msg: dict):
+    """Handle chat.user_message from UI."""
+    # TODO: Phase P3 - Implement actual planning and tool proposal
+    # For now, just echo back
+    print(f"Received user message: {msg['payload']['text']}")
 
 
 async def main():
     """Main entry point for Agent Core."""
-    logger = setup_logger("agent-core", level="INFO")
-    trace_id = generate_trace_id()
-    
-    logger.info(
-        "Agent Core starting (stub implementation - Phase P3 pending)",
-        extra={'trace_id': trace_id}
+    client = IPCClient(
+        service_name="agent-core",
+        capabilities=["chat.user_message", "chat.assistant_plan", "chat.assistant_message"],
+        hub_url="ws://127.0.0.1:17171"
     )
     
-    # TODO: Phase P3-T1 - Implement agent input/output contract
-    # TODO: Phase P3-T2 - Add planner output with risk labeling
-    # TODO: Phase P3-T3 - Add tool call proposal format
-    # TODO: Phase P3-T4 - Add failure handling
+    # Register message handlers
+    client.register_handler("chat.user_message", handle_user_message)
     
-    # Keep service running
     try:
-        while True:
-            await asyncio.sleep(1)
+        # Connect to IPC Hub
+        await client.connect()
+        
+        # Start heartbeat
+        heartbeat_task = asyncio.create_task(client.send_heartbeat())
+        
+        # Start message loop
+        await client.message_loop()
+        
+        # Cleanup
+        heartbeat_task.cancel()
+        await client.disconnect()
+        
     except KeyboardInterrupt:
-        logger.info("Agent Core shutting down", extra={'trace_id': trace_id})
+        client.logger.info("Agent Core shutting down")
+        await client.disconnect()
 
 
 if __name__ == "__main__":

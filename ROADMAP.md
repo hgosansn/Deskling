@@ -50,18 +50,18 @@ Exit criteria:
 - ✅ Single command can start hub + one stub service + UI shell.
 - ✅ All new modules follow the shared naming and config conventions.
 
-### Phase P1 - IPC Backbone (2-4 days)
+### Phase P1 - IPC Backbone (2-4 days) ✅ COMPLETE (2026-02-17)
 Goal: establish reliable local communication and routing.
 
 Tasks:
-- [ ] `P1-T1` Build `ipc-hub` WebSocket server with loopback-only binding.
-- [ ] `P1-T2` Implement auth handshake and service registration.
-- [ ] `P1-T3` Implement heartbeat, routing, and request/response correlation.
-- [ ] `P1-T4` Add message schema validation and structured errors.
+- [x] `P1-T1` Build `ipc-hub` WebSocket server with loopback-only binding. (2026-02-17)
+- [x] `P1-T2` Implement auth handshake and service registration. (2026-02-17)
+- [x] `P1-T3` Implement heartbeat, routing, and request/response correlation. (2026-02-17)
+- [x] `P1-T4` Add message schema validation and structured errors. (2026-02-17)
 
 Exit criteria:
-- UI and 2 services can connect and exchange validated messages.
-- Lost heartbeat disconnect and reconnect path is observable in logs.
+- ✅ UI and 2 services can connect and exchange validated messages.
+- ✅ Lost heartbeat disconnect and reconnect path is observable in logs.
 
 ### Phase P2 - Desktop UI Shell (3-6 days)
 Goal: deliver visible assistant shell with state transitions.
