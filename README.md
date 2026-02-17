@@ -67,12 +67,31 @@ If scope changes, update both [`ROADMAP.md`](ROADMAP.md) and impacted spec files
 Current repository includes MVP character demo UI and preserved backend services.
 
 **MVP development commands** (desktop character):
-- `cd apps/desktop-ui && npm install`
-- `npm start` - launch character demo
+```bash
+cd apps/desktop-ui
+npm install
+npm run character        # Launch character demo
+npm run character:dev    # Launch with developer tools
+```
 
-**Full product commands** (multi-service mode):
-- `npm run dev` - start all services via orchestration script
-- `npm run build` - build all components
+**Full product commands** (multi-service mode - preserved):
+```bash
+npm run dev     # Start all services via orchestration script
+npm run build   # Build all components
+```
+
+## Quick Start (MVP Demo)
+
+1. Clone the repository
+2. Navigate to the desktop UI: `cd apps/desktop-ui`
+3. Install dependencies: `npm install`
+4. Run the character demo: `npm run character`
+5. Interact with your new desktop buddy!
+   - Drag the window to move the character
+   - Click the character to see messages
+   - Watch the idle animations
+
+See [`apps/desktop-ui/README-CHARACTER.md`](apps/desktop-ui/README-CHARACTER.md) for more details.
 
 ## Contributing
 1. Read [`ROADMAP.md`](ROADMAP.md) first.
