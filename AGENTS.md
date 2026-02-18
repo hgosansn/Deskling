@@ -1,22 +1,15 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-This repo is a Tauri-first desktop assistant monorepo.
-- `apps/desktop-ui/`: Tauri desktop UI (Vite frontend + Rust host).
-- `apps/ipc-hub/`: Python IPC hub service.
-- `services/`: Python services (`agent-core`, `automation-service`, `voice-service`, `skin-service`).
-- `shared/schemas/`: shared JSON message/tool schemas.
-- `configs/`: local config templates and permission policies.
-- `scripts/`: helper shell scripts.
+This repo is a Tauri-first desktop assistant workspace.
+- `apps/desktop-ui/`: desktop UI and Rust host (`src-tauri`).
+- `.github/workflows/`: CI workflows for Rust/Tauri validation.
+- Root docs (`README.md`, `ROADMAP.md`) define direction and delivery plan.
 
 ## Build, Test, and Development Commands
-- `npm run dev`: run `apps/desktop-ui` frontend dev server.
-- `npm run tauri:dev`: run desktop app in Tauri dev mode.
-- `npm run build`: build frontend assets for desktop packaging.
-- `npm run tauri:build`: build desktop bundle via Tauri.
-- `./verify.sh`: project verification script (`npm run build` + Rust `cargo check`).
-- `./scripts/dev-up.sh`: start local dev stack (`ipc-hub`, `agent-core`, `desktop-ui`).
-- `python3 scripts/typed_chat_smoke.py`: run typed-chat IPC smoke test.
+- `cd apps/desktop-ui/src-tauri && cargo tauri dev`: run desktop app in Tauri dev mode.
+- `cd apps/desktop-ui/src-tauri && cargo tauri build`: build desktop bundle.
+- `cargo check --manifest-path apps/desktop-ui/src-tauri/Cargo.toml`: validate Rust host.
 
 ## Coding Style & Naming Conventions
 - Indentation is 4 spaces (`.editorconfig`, `.prettierrc`).
@@ -39,9 +32,9 @@ This repo is a Tauri-first desktop assistant monorepo.
 - Avoid purple-on-white cliches, generic component grids, and predictable layouts.
 
 ## Testing Guidelines
-There is currently no dedicated unit/integration test framework configured. CI validates frontend build and Rust host check on PRs.
-- Minimum local check: `./verify.sh` before commit or PR.
-- For UI changes, perform manual validation in `npm run tauri:dev` and confirm build succeeds.
+There is currently no dedicated unit/integration test framework configured. CI validates Rust host checks on PRs.
+- Minimum local check: `cargo check --manifest-path apps/desktop-ui/src-tauri/Cargo.toml` before commit or PR.
+- For UI changes, perform manual validation in `cargo tauri dev` and confirm build succeeds.
 
 ## Commit & Pull Request Guidelines
 Git history currently mixes patch-version commits (for example `0.0.91`) with short, informal messages. For collaboration, prefer clear imperative commit subjects like `Fix hero animation timing`.
@@ -50,8 +43,7 @@ Git history currently mixes patch-version commits (for example `0.0.91`) with sh
 - Link related issues/tasks when applicable.
 
 ## Security & Deployment Tips
-- Do not commit secrets; deployment uses AWS CLI credentials from your environment (`deploy.sh`).
-- `deploy.sh` targets bucket `hson.fr` and can invalidate CloudFront when a parameter is passed; run only after a successful `npm run build`.
+- Do not commit secrets or environment tokens.
 
 ## Planning & Product Context
 - Read `ROADMAP.md` before starting any task.

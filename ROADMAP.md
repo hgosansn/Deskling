@@ -33,7 +33,7 @@ These are committed choices for v1 unless explicitly changed in roadmap updates.
 - `D13` Platform priority: Fedora Linux (GNOME) is the primary development and MVP qualification environment; macOS/Windows parity is post-MVP.
 
 ## Decision Change Log
-- `2026-02-17` Architecture pivot approved: Rust-only service rewrite and no local inference baseline. Packaging size, runtime simplicity, and cross-platform release stability are now prioritized over Python-based AI iteration speed.
+- `2026-02-17` Architecture pivot approved: Rust-only service rewrite and no local inference baseline. Packaging size, runtime simplicity, and cross-platform release stability are now prioritized over mixed-runtime iteration speed.
 
 ## Out of Scope for V1
 - Always-on wake-word by default
@@ -180,7 +180,7 @@ Exit criteria:
 - Implementation backlog is split into post-MVP epics with owners and sequencing.
 
 ### Phase P10 - Rust Rewrite and Runtime Simplification (2-4 weeks)
-Goal: remove Python runtime dependencies from the product path and run all core services in Rust while keeping Tauri UI and tokenomics constraints unchanged.
+Goal: remove non-Rust runtime dependencies from the product path and run all core services in Rust while keeping Tauri UI and tokenomics constraints unchanged.
 
 Tasks:
 - [x] `P10-T0` Approve Rust-only/no-local-inference architecture pivot and synchronize roadmap/spec baselines. (Done 2026-02-17)
@@ -189,12 +189,12 @@ Tasks:
 - [ ] `P10-T3` Rewrite `automation-service` in Rust with existing confirmation-token and audit requirements.
 - [ ] `P10-T4` Rewrite `voice-service` in Rust using remote-provider adapters only (no local inference runtimes bundled).
 - [ ] `P10-T5` Rewrite `skin-service` in Rust (or merge into another Rust service if lower operational overhead).
-- [ ] `P10-T6` Replace Python dev/test scripts with Rust binaries and cargo-based checks.
-- [ ] `P10-T7` Remove Python/runtime dependencies from packaging and CI; verify reduced bundle footprint and simpler install path.
+- [ ] `P10-T6` Replace legacy dev/test scripts with Rust binaries and cargo-based checks.
+- [ ] `P10-T7` Remove non-Rust runtime dependencies from packaging and CI; verify reduced bundle footprint and simpler install path.
 - [ ] `P10-T8` Re-run Fedora qualification and cross-platform smoke tests after Rust rewrite.
 
 Exit criteria:
-- No production runtime dependency on Python remains.
+- No production runtime dependency outside Rust services remains.
 - Build/test/deploy path is cargo + Node/Tauri only.
 - Bundle size and install complexity are reduced versus the previous baseline.
 - IPC/tool/confirmation behavior remains backward-compatible with current schemas and policies.

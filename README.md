@@ -1,72 +1,150 @@
 # Deskling
 
-![Status](https://img.shields.io/badge/status-active%20planning-0a7ea4)
-![Roadmap](https://img.shields.io/badge/roadmap-authoritative-1f6feb)
-![Specs](https://img.shields.io/badge/specs-required-2ea043)
-![Stack](https://img.shields.io/badge/stack-Tauri%20%2B%20Python-f59e0b)
-![Privacy](https://img.shields.io/badge/privacy-local--first-8b5cf6)
+Desktop character companion built with Tauri.
 
-Cross-platform desktop voice assistant with a floating character UI, local-first voice pipeline, safe tool execution, and a skin-based appearance system.
+## Quick Start
 
-## Project Status
-This repository is in active build planning and foundational implementation.
-Execution order, scope, and priorities are managed in the roadmap.
+### Automated Setup (Linux/macOS)
+```bash
+# Run the setup script to install system dependencies
+./setup-deps.sh
 
-## Start Here
-- Roadmap (source of truth for sequencing): [`ROADMAP.md`](ROADMAP.md)
-- Product/context specs index: [`specs/README.md`](specs/README.md)
-- Scope definition: [`specs/project_scope.md`](specs/project_scope.md)
-- Architecture baseline: [`specs/architecture.md`](specs/architecture.md)
-- IPC contract: [`specs/ipc_protocol.md`](specs/ipc_protocol.md)
-- Tool safety model: [`specs/tool_system.md`](specs/tool_system.md)
+# Install Rust if not already installed
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-## Vision
-TaskSprite is a local-first assistant that can:
-- accept typed and push-to-talk voice input
-- propose clear plans for risky actions
-- execute approved desktop/web tools through policy controls
-- respond with text and speech
-- swap character skins without runtime restarts
+# Install Tauri CLI
+cargo install tauri-cli
 
-## Principles
-- Local-first by default
-- Explicit confirmation for medium/high risk actions
-- Modular services connected through a single IPC hub
-- Auditability for all tool actions
+# Run the app
+cd apps/desktop-ui/src-tauri
+cargo tauri dev
+```
 
-## Architecture Snapshot
-High-level components:
-- `desktop-ui` (Tauri): overlay, chat bubble, confirmations
-- `ipc-hub` (Python): local WebSocket bus, auth, routing, heartbeat
-- `agent-core` (Python): plan generation, tool proposals, response composition
-- `automation-service` (Python): policy-enforced tool execution + audit logs
-- `voice-service` (Python): STT/TTS and interruption handling
-- `skin-service` (optional): skin management and generation hooks
+### Manual Setup
+```bash
+cd apps/desktop-ui/src-tauri
+cargo tauri dev
+```
 
-See full details in [`specs/architecture.md`](specs/architecture.md).
+## Build for Production
 
-## Roadmap Reference
-All implementation work must map to a roadmap task ID (`P#-T#`) before coding starts.
-If scope changes, update both [`ROADMAP.md`](ROADMAP.md) and impacted spec files in `specs/` in the same session.
+```bash
+cd apps/desktop-ui/src-tauri
+cargo tauri build
+```
 
-## Development Notes
-Monorepo scaffold is now Tauri-first for desktop UI and Python-first for services.
+## Features
 
-Common commands:
-- `npm run dev` (frontend shell in `apps/desktop-ui`)
-- `npm run tauri:dev` (desktop app)
-- `npm run build` (frontend build)
-- `./verify.sh` (frontend build + Rust host check)
-- `./scripts/dev-up.sh` (start `ipc-hub` + `agent-core` + desktop-ui dev shell)
-- `python3 scripts/typed_chat_smoke.py` (typed-chat IPC smoke test)
+- Transparent, frameless, always-on-top window
+- Animated stickman character
+- Speech bubbles with messages
+- Draggable window
+- Click character for different messages
+- Hover for zoom effect
 
-## Contributing
-1. Read [`ROADMAP.md`](ROADMAP.md) first.
-2. Pick or define the target task ID.
-3. Check/update related spec files under `specs/`.
-4. Implement in small, focused commits.
+## Structure
 
-## Documentation Map
-- Contributor/agent operating conventions: [`AGENTS.md`](AGENTS.md)
-- Product specs index: [`specs/README.md`](specs/README.md)
-- Project roadmap: [`ROADMAP.md`](ROADMAP.md)
+```
+apps/desktop-ui/
+├── index.html          # Character UI
+└── src-tauri/         # Tauri Rust backend
+    ├── Cargo.toml
+    ├── tauri.conf.json
+    └── src/main.rs
+```
+
+## Requirements
+
+### Core Requirements
+- **Rust** (latest stable) - [Install Rust](https://rustup.rs/)
+- **Tauri CLI** - Install with: `cargo install tauri-cli`
+
+### System Dependencies
+
+Tauri requires system libraries to build. Install the following based on your platform:
+
+#### Ubuntu/Debian
+```bash
+sudo apt-get update
+sudo apt-get install -y \
+  pkg-config \
+  libglib2.0-dev \
+  libgtk-3-dev \
+  libwebkit2gtk-4.1-dev \
+  libappindicator3-dev \
+  librsvg2-dev \
+  patchelf
+```
+
+#### Fedora/RHEL/CentOS
+```bash
+sudo dnf install -y \
+  pkg-config \
+  glib2-devel \
+  gtk3-devel \
+  webkit2gtk4.1-devel \
+  libappindicator-gtk3-devel \
+  librsvg2-devel \
+  patchelf
+```
+
+#### Arch Linux
+```bash
+sudo pacman -S --needed \
+  pkg-config \
+  glib2 \
+  gtk3 \
+  webkit2gtk-4.1 \
+  libappindicator-gtk3 \
+  librsvg \
+  patchelf
+```
+
+#### macOS
+```bash
+# Install Xcode Command Line Tools
+xcode-select --install
+```
+
+#### Windows
+No additional dependencies needed. Make sure you have Visual Studio Build Tools or Visual Studio with C++ workload installed.
+
+## Platform Support
+
+- Linux (Ubuntu, Fedora, Arch, etc.)
+- macOS
+- Windows
+
+## Troubleshooting
+
+### Build Error: `glib-2.0` not found
+
+**Error message:**
+```
+The system library `glib-2.0` required by crate `glib-sys` was not found.
+The file `glib-2.0.pc` needs to be installed and the PKG_CONFIG_PATH environment variable must contain its parent directory.
+```
+
+**Solution:**
+Install the system dependencies for your platform (see [System Dependencies](#system-dependencies) section above).
+
+### Build Error: `webkit2gtk-4.1` not found
+
+**Solution:**
+- **Ubuntu/Debian:** Install `libwebkit2gtk-4.1-dev`
+- **Fedora:** Install `webkit2gtk4.1-devel`
+- **Arch:** Install `webkit2gtk-4.1`
+
+### Build Error: Missing C++ compiler
+
+**Solution:**
+- **Linux:** Install `build-essential` (Debian/Ubuntu) or `gcc-c++` (Fedora)
+- **macOS:** Run `xcode-select --install`
+- **Windows:** Install [Visual Studio Build Tools](https://visualstudio.microsoft.com/downloads/)
+
+### Runtime Error: Window doesn't appear
+
+**Solution:**
+Make sure you have a display server running (X11 or Wayland on Linux).
+
+For more help, see the [Tauri documentation](https://tauri.app/v1/guides/getting-started/prerequisites).
