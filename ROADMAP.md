@@ -14,6 +14,7 @@ Detailed design and implementation rules live in `specs/`.
 - `specs/tool_system.md` - tool contracts, risk model, confirmation policy, initial tool set
 - `specs/logging_conventions.md` - structured logs and trace-id handling rules
 - `specs/tokenomics.md` - DSL utility-token policy, distribution, and rollout constraints
+- `specs/stickman_mvp.md` - Tauri-only Fedora MVP for desktop stickman behavior and extensible skin/animation hooks
 
 ## Pre-Start Decisions (Locked)
 These are committed choices for v1 unless explicitly changed in roadmap updates.
@@ -139,6 +140,7 @@ Exit criteria:
 Goal: make the product installable and operationally safe on Fedora GNOME as the first shipping target.
 
 Tasks:
+- [x] `P7-T0` Deliver Tauri-only stickman desktop MVP on Fedora (borderless UI, moving character, contextual local messages, skin/animation extension points). (Done 2026-02-18)
 - [ ] `P7-T1` Add Fedora packaging/distribution pipeline for MVP delivery. (in progress)
 - [ ] `P7-T2` Add first-run model/voice download workflow.
 - [ ] `P7-T3` Implement crash recovery and service health panel.
@@ -146,6 +148,8 @@ Tasks:
 - [ ] `P7-T5` Add Fedora GNOME qualification checklist (window behavior, audio I/O, tray/menu, permissions).
 - [ ] `P7-T6` Run and document Fedora GNOME install + smoke test flow as release baseline.
 - [ ] `P7-T7` Create promotional download page with platform download links and marketplace entry links.
+- [ ] `P7-T8` Add LLM-backed contextual speech generation for stickman messages after MVP local-rules baseline.
+- [ ] `P7-T9` Add direct interaction layer (user intents, follow-ups, and richer response actions) after MVP.
 
 Exit criteria:
 - Fedora GNOME MVP build is installable, recoverable, and policy-compliant.
