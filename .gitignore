@@ -83,6 +83,7 @@ typings/
 dist
 apps/desktop-ui/src-tauri/target/
 apps/desktop-ui/src-tauri/gen/
+apps/desktop-ui/src-tauri/Cargo.lock
 
 # Gatsby files
 .cache/
