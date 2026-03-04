@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deskling Character</title>
     <style>
+        :root {
+            --skin-head: #1f2937;
+            --skin-limb: #111827;
+            --skin-eye: #f8fafc;
+            --skin-pupil: #020617;
+            --bubble-bg: rgba(255, 255, 255, 0.96);
+            --bubble-border: #1f2937;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -18,28 +27,37 @@
             background: transparent;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             -webkit-app-region: drag;
-            cursor: move;
         }
 
         #character-container {
             width: 100%;
             height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-            padding-bottom: 30px;
             position: relative;
+            background:
+                radial-gradient(circle at 70% 10%, rgba(16, 185, 129, 0.22), transparent 45%),
+                radial-gradient(circle at 20% 0%, rgba(59, 130, 246, 0.3), transparent 42%);
+        }
+
+        #stage {
+            position: absolute;
+            left: 10px;
+            right: 10px;
+            bottom: 0;
+            height: 210px;
+            border-radius: 18px 18px 0 0;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.18), rgba(15, 23, 42, 0.38));
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            overflow: hidden;
             -webkit-app-region: no-drag;
         }
 
         #speech-bubble {
             position: absolute;
-            top: 60px;
+            top: 24px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.98);
-            border: 2px solid #333;
+            background: var(--bubble-bg);
+            border: 2px solid var(--bubble-border);
             border-radius: 18px;
             padding: 12px 18px;
             max-width: 250px;
@@ -64,7 +82,7 @@
             height: 0;
             border-left: 14px solid transparent;
             border-right: 14px solid transparent;
-            border-top: 14px solid rgba(255, 255, 255, 0.98);
+            border-top: 14px solid var(--bubble-bg);
         }
 
         #speech-text {
@@ -75,9 +93,12 @@
         }
 
         #character {
+            position: absolute;
+            bottom: 18px;
+            left: 110px;
             cursor: pointer;
             -webkit-app-region: no-drag;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, left 0.8s linear;
         }
 
         #character:hover {
@@ -90,6 +111,27 @@
 
         #character.idle {
             animation: idle-bounce 2s ease-in-out infinite;
+        }
+
+        #character.walking {
+            animation: walk-cycle 0.42s linear infinite;
+        }
+
+        #character.waving #left-arm {
+            transform-origin: 60px 65px;
+            animation: wave-arm 0.42s ease-in-out 8;
+        }
+
+        #character.spinning {
+            animation: spin-around 0.9s linear 1;
+        }
+
+        #character.dancing {
+            animation: dance-loop 0.55s ease-in-out 6;
+        }
+
+        #character.facing-left {
+            transform: scaleX(-1);
         }
 
         @keyframes idle-bounce {
@@ -107,6 +149,45 @@
             }
             50% {
                 transform: translateY(-5px);
+            }
+        }
+
+        @keyframes walk-cycle {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-3px) rotate(-2deg);
+            }
+        }
+
+        @keyframes wave-arm {
+            0%, 100% {
+                transform: rotate(0deg);
+            }
+            50% {
+                transform: rotate(26deg);
+            }
+        }
+
+        @keyframes spin-around {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes dance-loop {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-6px) rotate(-4deg);
+            }
+            75% {
+                transform: translateY(-3px) rotate(4deg);
             }
         }
 
@@ -134,98 +215,229 @@
 </head>
 <body>
     <div id="character-container">
+        <div id="stage"></div>
         <div id="speech-bubble">
             <div id="speech-text"></div>
         </div>
 
         <svg id="character" class="idle" width="120" height="180" viewBox="0 0 120 180" xmlns="http://www.w3.org/2000/svg">
             <!-- Head -->
-            <circle cx="60" cy="30" r="20" fill="#333" stroke="#000" stroke-width="2"/>
+            <circle id="head" cx="60" cy="30" r="20" fill="var(--skin-head)" stroke="#000" stroke-width="2"/>
             
             <!-- Eyes -->
-            <circle cx="52" cy="28" r="3" fill="#fff"/>
-            <circle cx="68" cy="28" r="3" fill="#fff"/>
-            <circle cx="53" cy="28" r="1.5" fill="#000"/>
-            <circle cx="69" cy="28" r="1.5" fill="#000"/>
+            <circle cx="52" cy="28" r="3" fill="var(--skin-eye)"/>
+            <circle cx="68" cy="28" r="3" fill="var(--skin-eye)"/>
+            <circle cx="53" cy="28" r="1.5" fill="var(--skin-pupil)"/>
+            <circle cx="69" cy="28" r="1.5" fill="var(--skin-pupil)"/>
             
             <!-- Smile -->
             <path d="M 50 35 Q 60 40 70 35" stroke="#000" stroke-width="2" fill="none" stroke-linecap="round"/>
             
             <!-- Body -->
-            <line x1="60" y1="50" x2="60" y2="100" stroke="#333" stroke-width="4" stroke-linecap="round"/>
+            <line x1="60" y1="50" x2="60" y2="100" stroke="var(--skin-limb)" stroke-width="4" stroke-linecap="round"/>
             
             <!-- Arms -->
-            <line x1="60" y1="65" x2="35" y2="85" stroke="#333" stroke-width="4" stroke-linecap="round"/>
-            <line x1="60" y1="65" x2="85" y2="85" stroke="#333" stroke-width="4" stroke-linecap="round"/>
+            <line id="left-arm" x1="60" y1="65" x2="35" y2="85" stroke="var(--skin-limb)" stroke-width="4" stroke-linecap="round"/>
+            <line x1="60" y1="65" x2="85" y2="85" stroke="var(--skin-limb)" stroke-width="4" stroke-linecap="round"/>
             
             <!-- Legs -->
-            <line x1="60" y1="100" x2="40" y2="150" stroke="#333" stroke-width="4" stroke-linecap="round"/>
-            <line x1="60" y1="100" x2="80" y2="150" stroke="#333" stroke-width="4" stroke-linecap="round"/>
+            <line x1="60" y1="100" x2="40" y2="150" stroke="var(--skin-limb)" stroke-width="4" stroke-linecap="round"/>
+            <line x1="60" y1="100" x2="80" y2="150" stroke="var(--skin-limb)" stroke-width="4" stroke-linecap="round"/>
             
             <!-- Feet -->
-            <line x1="40" y1="150" x2="30" y2="150" stroke="#333" stroke-width="3" stroke-linecap="round"/>
-            <line x1="80" y1="150" x2="90" y2="150" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+            <line x1="40" y1="150" x2="30" y2="150" stroke="var(--skin-limb)" stroke-width="3" stroke-linecap="round"/>
+            <line x1="80" y1="150" x2="90" y2="150" stroke="var(--skin-limb)" stroke-width="3" stroke-linecap="round"/>
         </svg>
 
-        <div id="hint">Drag me around!</div>
+        <div id="hint">Drag window by background · Click stickman for skills</div>
     </div>
 
     <script>
-        const messages = [
-            "Hi there! 👋",
-            "I'm Deskling, your desktop buddy!",
-            "Drag me anywhere you like!",
-            "Click me again for another message!",
-            "I can show text in speech bubbles!",
-            "Having fun yet? 😊",
-            "I'm a simple stickman for now!",
-            "This is the Tauri demo!",
-            "More features coming soon!",
-            "Built with Tauri!",
-        ];
-
-        let messageIndex = 0;
+        const stage = document.getElementById('stage');
         let bubbleTimeout = null;
         const character = document.getElementById('character');
         const speechBubble = document.getElementById('speech-bubble');
         const speechText = document.getElementById('speech-text');
         const hint = document.getElementById('hint');
+        const rootStyle = document.documentElement.style;
+
+        const skins = {
+            classic: {
+                head: '#1f2937',
+                limb: '#111827',
+                eye: '#f8fafc',
+                pupil: '#020617',
+                bubble: 'rgba(255, 255, 255, 0.96)',
+            },
+        };
+
+        const skillMessages = [
+            { skill: 'waving', line: 'tiny wave unlocked 👋' },
+            { skill: 'spinning', line: 'spin mode engaged 🌀' },
+            { skill: 'dancing', line: 'dance break in progress 💃' },
+        ];
+
+        const contextualMessages = [
+            'Working hard? I can vibe quietly too.',
+            'You moved the mouse fast. Sprint training noted.',
+            'I patrol this tiny stage while you focus.',
+            'Double-click me for a desktop dash.',
+        ];
+
+        const skillClasses = ['idle', 'talking', 'walking', 'waving', 'spinning', 'dancing'];
+        let charX = 110;
+        let clickedCount = 0;
+        let roamTimer = null;
+        let idleTimer = null;
+        let mouseHintTimer = null;
+        let lastMouseMoveAt = 0;
+        let lastMouseX = 0;
 
         // Hide hint after 3 seconds
         setTimeout(() => {
             hint.classList.add('hidden');
         }, 3000);
 
-        // Show welcome message after 500ms
+        applySkin('classic');
+        startRoam();
+
         setTimeout(() => {
-            showMessage();
+            showMessage('Fedora MVP stickman ready.');
         }, 500);
 
         character.addEventListener('click', () => {
-            messageIndex = (messageIndex + 1) % messages.length;
-            showMessage();
+            clickedCount += 1;
+            const payload = skillMessages[clickedCount % skillMessages.length];
+            moveCharacterBy(20 + Math.floor(Math.random() * 45));
+            playSkill(payload.skill);
+            showMessage(payload.line);
         });
 
-        function showMessage() {
+        character.addEventListener('dblclick', () => {
+            playSkill('walking');
+            moveCharacterBy(80);
+            showMessage('Desk-dash! Hold on 😄');
+            nudgeWindow();
+        });
+
+        window.addEventListener('mousemove', (event) => {
+            const now = Date.now();
+            const speed = Math.abs(event.clientX - lastMouseX) / Math.max(now - lastMouseMoveAt, 1);
+            lastMouseX = event.clientX;
+            lastMouseMoveAt = now;
+
+            if (speed > 1.4 && !mouseHintTimer) {
+                mouseHintTimer = setTimeout(() => {
+                    mouseHintTimer = null;
+                }, 5000);
+                showMessage('Fast cursor detected. Zoom zoom.');
+            }
+
+            resetIdleTimer();
+        });
+
+        window.addEventListener('focus', () => {
+            showMessage('You are back. Showtime.');
+            resetIdleTimer();
+        });
+
+        function applySkin(name) {
+            const skin = skins[name];
+            if (!skin) {
+                return;
+            }
+            rootStyle.setProperty('--skin-head', skin.head);
+            rootStyle.setProperty('--skin-limb', skin.limb);
+            rootStyle.setProperty('--skin-eye', skin.eye);
+            rootStyle.setProperty('--skin-pupil', skin.pupil);
+            rootStyle.setProperty('--bubble-bg', skin.bubble);
+        }
+
+        function resetSkillClasses() {
+            skillClasses.forEach((name) => character.classList.remove(name));
+        }
+
+        function playSkill(name) {
+            resetSkillClasses();
+            character.classList.add(name);
+            if (name !== 'talking') {
+                setTimeout(() => {
+                    if (!character.classList.contains('talking')) {
+                        resetSkillClasses();
+                        character.classList.add('idle');
+                    }
+                }, 1800);
+            }
+        }
+
+        function showMessage(message) {
             // Clear existing timeout
             if (bubbleTimeout) {
                 clearTimeout(bubbleTimeout);
             }
 
             // Show bubble
-            speechText.textContent = messages[messageIndex];
+            speechText.textContent = message;
             speechBubble.classList.add('visible');
-            
-            // Change animation
-            character.classList.remove('idle');
-            character.classList.add('talking');
+            playSkill('talking');
 
-            // Hide after 3 seconds
             bubbleTimeout = setTimeout(() => {
                 speechBubble.classList.remove('visible');
-                character.classList.remove('talking');
+                resetSkillClasses();
                 character.classList.add('idle');
             }, 3000);
+        }
+
+        function moveCharacterBy(delta) {
+            const stageWidth = stage.clientWidth;
+            const characterWidth = 120;
+            const maxX = Math.max(stageWidth - characterWidth, 0);
+            charX += delta * (Math.random() > 0.5 ? 1 : -1);
+            charX = Math.min(Math.max(charX, 0), maxX);
+            character.style.left = `${charX}px`;
+            character.classList.toggle('facing-left', delta < 0);
+        }
+
+        function startRoam() {
+            roamTimer = setInterval(() => {
+                const step = 18 + Math.floor(Math.random() * 38);
+                moveCharacterBy(step);
+                playSkill('walking');
+                if (Math.random() > 0.72) {
+                    showMessage(contextualMessages[Math.floor(Math.random() * contextualMessages.length)]);
+                }
+            }, 2200);
+
+            resetIdleTimer();
+        }
+
+        function resetIdleTimer() {
+            if (idleTimer) {
+                clearTimeout(idleTimer);
+            }
+            idleTimer = setTimeout(() => {
+                showMessage('I am still here if you need a break.');
+            }, 22000);
+        }
+
+        async function nudgeWindow() {
+            const tauriWindowApi = window.__TAURI__?.window || window.__TAURI__?.webviewWindow;
+            const getCurrent = tauriWindowApi?.getCurrentWindow || tauriWindowApi?.getCurrent;
+            if (!getCurrent) {
+                return;
+            }
+            try {
+                const appWindow = await getCurrent();
+                const position = appWindow.innerPosition ? await appWindow.innerPosition() : null;
+                if (!position || !appWindow.setPosition) {
+                    return;
+                }
+                const dx = (Math.random() > 0.5 ? 1 : -1) * (18 + Math.floor(Math.random() * 22));
+                const dy = (Math.random() > 0.5 ? 1 : -1) * (8 + Math.floor(Math.random() * 16));
+                await appWindow.setPosition({ x: Math.max(position.x + dx, 0), y: Math.max(position.y + dy, 0) });
+            } catch (_) {
+                // no-op when running outside tauri runtime
+            }
         }
     </script>
 </body>
